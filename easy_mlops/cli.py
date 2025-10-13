@@ -13,7 +13,7 @@ console = Console()
 
 
 @click.group()
-@click.version_option(version="0.1.0")
+@click.version_option(version="0.1.1")
 def main():
     """Make MLOps Easy - Make MLOps easier with automated pipelines.
 
