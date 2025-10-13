@@ -10,7 +10,7 @@ readme = "README.md"
 requires-python = ">=3.8"
 license = {text = "MIT"}
 authors = [
-    {name = "Umberto Ciccia", email = "umbertocicciaa@example.com"}
+    {name = "Umberto Domenico Ciccia", email = "umbertociccia@icloud.com"}
 ]
 keywords = ["mlops", "machine-learning", "ai", "automation", "deployment"]
 classifiers = [
@@ -41,6 +41,9 @@ dev = [
     "black>=22.0.0",
     "flake8>=4.0.0",
     "mypy>=0.950",
+    "mkdocs>=1.5.0",
+    "mkdocs-material>=9.0.0",
+    "mkdocs-git-revision-date-localized-plugin>=1.2.0",
 ]
 
 [project.scripts]
