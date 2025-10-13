@@ -1,0 +1,17 @@
+deployment:
+  create_endpoint: false
+  output_dir: ./models
+  save_format: joblib
+observability:
+  alert_threshold: 0.8
+  log_predictions: true
+  track_metrics: true
+preprocessing:
+  encode_categorical: true
+  handle_missing: drop
+  scale_features: true
+training:
+  cv_folds: 5
+  model_type: auto
+  random_state: 42
+  test_size: 0.2

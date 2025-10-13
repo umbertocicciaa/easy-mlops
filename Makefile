@@ -8,7 +8,7 @@ PYTEST := $(VENV)/bin/pytest
 CLI := $(VENV)/bin/easy-mlops
 IMAGE ?= easy-mlops
 
-.PHONY: help venv install install-dev lint format test coverage train predict status observe docker-build docker-run docker-shell clean
+.PHONY: help venv install install-dev lint format test coverage docs-serve docs-build docs-deploy train predict status observe docker-build docker-run docker-shell clean
 
 help: ## Show available make targets
 	@echo "Available targets:"
@@ -36,6 +36,15 @@ coverage: venv ## Run tests with coverage summary (using Python trace)
 	@mkdir -p trace_summary
 	@$(PYTHON_BIN) -c "import os, sys, trace, pytest; ignoredirs=[os.path.join(os.getcwd(), '.venv'), sys.prefix, sys.exec_prefix]; ignoremods={'pytest','_pytest','numpy','pandas','sklearn'}; tracer=trace.Trace(count=True, trace=False, ignoremods=ignoremods, ignoredirs=ignoredirs); exit_code=tracer.runfunc(pytest.main, ['tests']); results=tracer.results(); results.write_results(summary=True, coverdir='trace_summary'); sys.exit(exit_code)"
 	@echo "Coverage report saved to trace_summary/ (see summary above)"
+
+docs-serve: venv ## Serve MkDocs site locally
+	$(VENV)/bin/mkdocs serve
+
+docs-build: venv ## Build MkDocs site into the site/ directory
+	$(VENV)/bin/mkdocs build
+
+docs-deploy: venv ## Deploy documentation to GitHub Pages (requires permissions)
+	$(VENV)/bin/mkdocs gh-deploy --force
 
 train: venv ## Run training pipeline (DATA=path/to.csv TARGET=column CONFIG=path DEPLOY=false ARGS=\"...\")
 	@if [ -z "$(DATA)" ]; then echo "Usage: make train DATA=path/to.csv [TARGET=col] [CONFIG=cfg.yaml] [DEPLOY=false] [ARGS=\"...\"]"; exit 1; fi; \
@@ -80,4 +89,4 @@ docker-shell: ## Start interactive shell inside Docker image
 	docker run --rm -it $(DOCKER_FLAGS) $(IMAGE) /bin/bash
 
 clean: ## Remove build artifacts and caches
-	rm -rf build dist *.egg-info .pytest_cache coverage_data trace_summary
+	rm -rf build dist *.egg-info .pytest_cache coverage_data trace_summary site

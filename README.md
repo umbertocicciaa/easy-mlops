@@ -315,6 +315,24 @@ pytest
 black easy_mlops/
 ```
 
+### Documentation
+
+Project documentation is powered by MkDocs and the Material theme. Source files live in `docs/`, and the site configuration is `mkdocs.yml`.
+
+```bash
+# Serve docs locally (http://localhost:8000)
+make docs-serve
+
+# Build static site into site/
+make docs-build
+```
+
+The GitHub Actions workflow `.github/workflows/docs.yml` automatically builds and deploys the site to GitHub Pages on pushes to `main`. Enable GitHub Pages in the repository settings (source: “GitHub Actions”). For manual publishing or previews outside CI, run:
+
+```bash
+make docs-deploy
+```
+
 ### Type Checking
 
 ```bash

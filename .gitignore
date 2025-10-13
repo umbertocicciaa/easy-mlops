@@ -212,3 +212,4 @@ models/
 mlops-config.yaml
 coverage_data/
 trace_summary/
+site/

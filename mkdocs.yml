@@ -1,0 +1,45 @@
+site_name: Easy MLOps
+site_description: "Documentation for the Easy MLOps framework and CLI."
+site_url: "https://umbertocicciaa.github.io/easy-mlops/"
+repo_url: "https://github.com/umbertocicciaa/easy-mlops"
+repo_name: "umbertocicciaa/easy-mlops"
+
+theme:
+  name: "material"
+  palette:
+    - scheme: default
+      primary: "blue"
+      accent: "light blue"
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - content.code.annotate
+    - toc.integrate
+    - navigation.instant
+    - search.suggest
+    - search.highlight
+
+plugins:
+  - search
+  - git-revision-date-localized:
+      fallback_to_build_date: true
+
+markdown_extensions:
+  - admonition
+  - codehilite
+  - footnotes
+  - tables
+  - toc:
+      permalink: true
+
+nav:
+  - Home: index.md
+  - Getting Started:
+      - Quick Start: getting-started.md
+      - CLI Reference: cli.md
+  - Pipeline:
+      - Architecture: pipeline.md
+      - Deployment & Observability: deployment-observability.md
+  - Development:
+      - Local Development: development.md
+      - CI/CD: cicd.md
