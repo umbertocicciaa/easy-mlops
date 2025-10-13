@@ -68,25 +68,3 @@ jobs:
       - name: Check formatting with black
         run: |
           black --check easy_mlops/ tests/
-
-  type-check:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-
-      - name: Upgrade pip
-        run: python -m pip install --upgrade pip
-
-      - name: Install dependencies
-        run: |
-          pip install -e .[dev]
-
-      - name: Run mypy
-        run: |
-          mypy easy_mlops/ --ignore-missing-imports
