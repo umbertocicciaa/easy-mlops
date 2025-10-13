@@ -1,0 +1,66 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "easy-mlops"
+version = "0.1.0"
+description = "Make MLOps easier with an AI-powered framework"
+readme = "README.md"
+requires-python = ">=3.8"
+license = {text = "MIT"}
+authors = [
+    {name = "Umberto Ciccia", email = "umbertocicciaa@example.com"}
+]
+keywords = ["mlops", "machine-learning", "ai", "automation", "deployment"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+]
+
+dependencies = [
+    "click>=8.0.0",
+    "pandas>=1.3.0",
+    "scikit-learn>=1.0.0",
+    "joblib>=1.0.0",
+    "pyyaml>=6.0",
+    "rich>=10.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-cov>=3.0.0",
+    "black>=22.0.0",
+    "flake8>=4.0.0",
+    "mypy>=0.950",
+]
+
+[project.scripts]
+easy-mlops = "easy_mlops.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/umbertocicciaa/easy-mlops"
+Repository = "https://github.com/umbertocicciaa/easy-mlops"
+Issues = "https://github.com/umbertocicciaa/easy-mlops/issues"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["easy_mlops*"]
+
+[tool.black]
+line-length = 88
+target-version = ['py38']
+
+[tool.mypy]
+python_version = "3.8"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = false

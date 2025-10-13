@@ -205,3 +205,8 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+
+# Easy MLOps
+models/
+*.joblib
+mlops-config.yaml
