@@ -1,10 +1,10 @@
 # Deployment & Observability
 
-This section dives deeper into artifact management, deployment layouts, and the observability tooling bundled with Easy MLOps.
+This section dives deeper into artifact management, deployment layouts, and the observability tooling bundled with Make MLOps Easy.
 
 ## Deployment Layout
 
-Running `easy-mlops train` (without `--no-deploy`) creates a timestamped directory under `models/`:
+Running `make-mlops-easy train` (without `--no-deploy`) creates a timestamped directory under `models/`:
 
 ```
 models/
@@ -62,7 +62,7 @@ if should_alert:
 
 ### Reports
 
-`easy-mlops observe` renders a text report summarizing both logs. You can generate the same report programmatically:
+`make-mlops-easy observe` renders a text report summarizing both logs. You can generate the same report programmatically:
 
 ```python
 report = monitor.generate_report()

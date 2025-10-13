@@ -1,4 +1,4 @@
-"""Data preprocessing module for Easy MLOps."""
+"""Data preprocessing module for Make MLOps Easy."""
 
 import pandas as pd
 import numpy as np

@@ -1,21 +1,21 @@
 # CLI Reference
 
-Easy MLOps exposes a Click-based command-line interface under the executable `easy-mlops`. All commands share the same configuration system and logging facilities.
+Make MLOps Easy exposes a Click-based command-line interface under the executable `make-mlops-easy`. All commands share the same configuration system and logging facilities.
 
 ## Global Usage
 
 ```bash
-easy-mlops [COMMAND] [OPTIONS]
+make-mlops-easy [COMMAND] [OPTIONS]
 ```
 
-Run `easy-mlops --help` to see top-level commands and `easy-mlops <command> --help` for per-command options.
+Run `make-mlops-easy --help` to see top-level commands and `make-mlops-easy <command> --help` for per-command options.
 
 ## Commands
 
 ### `train`
 
 ```bash
-easy-mlops train DATA_PATH [--target COLUMN] [--config PATH] [--no-deploy]
+make-mlops-easy train DATA_PATH [--target COLUMN] [--config PATH] [--no-deploy]
 ```
 
 | Option | Description |
@@ -30,7 +30,7 @@ The command prints pipeline progress and yields the deployment directory (unless
 ### `predict`
 
 ```bash
-easy-mlops predict DATA_PATH MODEL_DIR [--config PATH] [--output PATH]
+make-mlops-easy predict DATA_PATH MODEL_DIR [--config PATH] [--output PATH]
 ```
 
 | Option | Description |
@@ -45,7 +45,7 @@ Predictions are displayed in the terminal. When `--output` is provided, predicti
 ### `status`
 
 ```bash
-easy-mlops status MODEL_DIR [--config PATH]
+make-mlops-easy status MODEL_DIR [--config PATH]
 ```
 
 Displays deployment metadata, evaluation metrics, and monitoring summaries by loading artifacts from `MODEL_DIR`.
@@ -53,7 +53,7 @@ Displays deployment metadata, evaluation metrics, and monitoring summaries by lo
 ### `observe`
 
 ```bash
-easy-mlops observe MODEL_DIR [--config PATH]
+make-mlops-easy observe MODEL_DIR [--config PATH]
 ```
 
 Generates a textual monitoring report summarizing metric trends and prediction logs.

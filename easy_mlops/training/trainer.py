@@ -1,4 +1,4 @@
-"""Model training module for Easy MLOps."""
+"""Model training module for Make MLOps Easy."""
 
 import pandas as pd
 import numpy as np

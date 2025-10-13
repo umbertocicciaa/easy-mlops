@@ -1,22 +1,22 @@
 #!/bin/bash
-# Complete Easy MLOps Workflow Example
-# This script demonstrates all features of Easy MLOps
+# Complete Make MLOps Easy Workflow Example
+# This script demonstrates all features of Make MLOps Easy
 
 set -e
 
 echo "============================================"
-echo "Easy MLOps - Complete Workflow Example"
+echo "Make MLOps Easy - Complete Workflow Example"
 echo "============================================"
 echo ""
 
 # Step 1: Initialize project
 echo "Step 1: Initialize project configuration"
-easy-mlops init -o examples/workflow-config.yaml
+make-mlops-easy init -o examples/workflow-config.yaml
 echo ""
 
 # Step 2: Train model
 echo "Step 2: Train model on sample data"
-easy-mlops train examples/sample_data.csv --target approved -c examples/workflow-config.yaml
+make-mlops-easy train examples/sample_data.csv --target approved -c examples/workflow-config.yaml
 echo ""
 
 # Get the latest deployment directory
@@ -26,17 +26,17 @@ echo ""
 
 # Step 3: Check status
 echo "Step 3: Check model status"
-easy-mlops status "$DEPLOYMENT_DIR"
+make-mlops-easy status "$DEPLOYMENT_DIR"
 echo ""
 
 # Step 4: Make predictions
 echo "Step 4: Make predictions on sample data"
-easy-mlops predict examples/sample_data.csv "$DEPLOYMENT_DIR" -o examples/predictions.json
+make-mlops-easy predict examples/sample_data.csv "$DEPLOYMENT_DIR" -o examples/predictions.json
 echo ""
 
 # Step 5: View observability report
 echo "Step 5: Generate observability report"
-easy-mlops observe "$DEPLOYMENT_DIR" -o examples/monitoring_report.txt
+make-mlops-easy observe "$DEPLOYMENT_DIR" -o examples/monitoring_report.txt
 echo ""
 
 # Step 6: Use the prediction endpoint script

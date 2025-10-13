@@ -57,7 +57,7 @@ gh release create v0.1.1 --title "v0.1.1" --notes "Release notes here"
 
 1. Go to the "Actions" tab in your repository
 2. Watch the "Publish to PyPI" workflow run
-3. Once complete, your package will be available on PyPI at: https://pypi.org/project/easy-mlops/
+3. Once complete, your package will be available on PyPI at: https://pypi.org/project/make-mlops-easy/
 
 ## Verification
 
@@ -65,8 +65,8 @@ After publishing, verify your package:
 
 ```bash
 # Install from PyPI
-pip install easy-mlops
+pip install make-mlops-easy
 
 # Test it works
-easy-mlops --version
+make-mlops-easy --version
 ```

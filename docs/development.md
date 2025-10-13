@@ -1,6 +1,6 @@
 # Local Development
 
-This guide covers environment setup, coding conventions, testing, and documentation workflows for Easy MLOps contributors.
+This guide covers environment setup, coding conventions, testing, and documentation workflows for Make MLOps Easy contributors.
 
 ## Environment Setup
 

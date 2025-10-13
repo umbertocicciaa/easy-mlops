@@ -1,4 +1,4 @@
-"""Model deployment module for Easy MLOps."""
+"""Model deployment module for Make MLOps Easy."""
 
 from easy_mlops.deployment.deployer import ModelDeployer
 

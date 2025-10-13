@@ -13,9 +13,8 @@ RUN pip install --upgrade pip && \
 
 # Copy source code and install the package in editable mode
 COPY easy_mlops /app/easy_mlops
-COPY bin /app/bin
 
 RUN pip install --no-cache-dir -e .
 
-ENTRYPOINT ["easy-mlops"]
+ENTRYPOINT ["make-mlops-easy"]
 CMD ["--help"]

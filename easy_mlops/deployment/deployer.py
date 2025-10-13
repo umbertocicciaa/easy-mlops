@@ -1,4 +1,4 @@
-"""Model deployment module for Easy MLOps."""
+"""Model deployment module for Make MLOps Easy."""
 
 import os
 import json

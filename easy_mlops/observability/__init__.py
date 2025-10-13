@@ -1,4 +1,4 @@
-"""Model observability module for Easy MLOps."""
+"""Model observability module for Make MLOps Easy."""
 
 from easy_mlops.observability.monitor import ModelMonitor
 

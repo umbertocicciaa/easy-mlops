@@ -11,7 +11,7 @@ from easy_mlops.observability import ModelMonitor
 
 
 class MLOpsPipeline:
-    """Main pipeline orchestrator for Easy MLOps."""
+    """Main pipeline orchestrator for Make MLOps Easy."""
 
     def __init__(self, config_path: Optional[str] = None):
         """Initialize MLOps pipeline.

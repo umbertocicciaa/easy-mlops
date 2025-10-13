@@ -1,4 +1,4 @@
-"""Command-line interface for Easy MLOps."""
+"""Command-line interface for Make MLOps Easy."""
 
 import click
 import sys
@@ -15,7 +15,7 @@ console = Console()
 @click.group()
 @click.version_option(version="0.1.0")
 def main():
-    """Easy MLOps - Make MLOps easier with automated pipelines.
+    """Make MLOps Easy - Make MLOps easier with automated pipelines.
 
     A comprehensive framework that abstracts data preprocessing, model training,
     deployment, and observability into simple CLI commands.
@@ -53,10 +53,10 @@ def train(data_path, target, config, no_deploy):
     - Observability setup (metrics logging)
 
     Example:
-        easy-mlops train data.csv --target price
-        easy-mlops train data.json -t label -c config.yaml
+        make-mlops-easy train data.csv --target price
+        make-mlops-easy train data.json -t label -c config.yaml
     """
-    console.print("\n[bold blue]Easy MLOps - Training Pipeline[/bold blue]\n")
+    console.print("\n[bold blue]Make MLOps Easy - Training Pipeline[/bold blue]\n")
 
     try:
         pipeline = MLOpsPipeline(config_path=config)
@@ -108,10 +108,10 @@ def predict(data_path, model_dir, config, output):
     Load a previously deployed model and make predictions on new data.
 
     Example:
-        easy-mlops predict new_data.csv models/deployment_20240101_120000
-        easy-mlops predict data.json models/latest -o predictions.json
+        make-mlops-easy predict new_data.csv models/deployment_20240101_120000
+        make-mlops-easy predict data.json models/latest -o predictions.json
     """
-    console.print("\n[bold blue]Easy MLOps - Prediction[/bold blue]\n")
+    console.print("\n[bold blue]Make MLOps Easy - Prediction[/bold blue]\n")
 
     try:
         pipeline = MLOpsPipeline(config_path=config)
@@ -157,9 +157,9 @@ def status(model_dir, config):
     deployment information, and monitoring statistics.
 
     Example:
-        easy-mlops status models/deployment_20240101_120000
+        make-mlops-easy status models/deployment_20240101_120000
     """
-    console.print("\n[bold blue]Easy MLOps - Model Status[/bold blue]\n")
+    console.print("\n[bold blue]Make MLOps Easy - Model Status[/bold blue]\n")
 
     try:
         pipeline = MLOpsPipeline(config_path=config)
@@ -223,10 +223,10 @@ def observe(model_dir, config, output):
     prediction logs, and performance trends.
 
     Example:
-        easy-mlops observe models/deployment_20240101_120000
-        easy-mlops observe models/latest -o report.txt
+        make-mlops-easy observe models/deployment_20240101_120000
+        make-mlops-easy observe models/latest -o report.txt
     """
-    console.print("\n[bold blue]Easy MLOps - Observability Report[/bold blue]\n")
+    console.print("\n[bold blue]Make MLOps Easy - Observability Report[/bold blue]\n")
 
     try:
         pipeline = MLOpsPipeline(config_path=config)
@@ -259,10 +259,10 @@ def init(output):
     customize for your specific use case.
 
     Example:
-        easy-mlops init
-        easy-mlops init -o my-config.yaml
+        make-mlops-easy init
+        make-mlops-easy init -o my-config.yaml
     """
-    console.print("\n[bold blue]Easy MLOps - Initialize Project[/bold blue]\n")
+    console.print("\n[bold blue]Make MLOps Easy - Initialize Project[/bold blue]\n")
 
     try:
         from easy_mlops.config import Config
@@ -276,7 +276,7 @@ def init(output):
         console.print(
             "\n[dim]You can now customize the configuration and use it with:[/dim]"
         )
-        console.print(f"[dim]  easy-mlops train data.csv -c {output}[/dim]")
+        console.print(f"[dim]  make-mlops-easy train data.csv -c {output}[/dim]")
 
     except Exception as e:
         console.print(f"[bold red]✗ Error:[/bold red] {str(e)}")

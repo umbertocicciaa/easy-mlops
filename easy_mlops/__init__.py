@@ -1,4 +1,4 @@
-"""Easy MLOps - Make MLOps easier with automated pipelines."""
+"""Make MLOps Easy - Make MLOps easier with automated pipelines."""
 
 __version__ = "0.1.0"
 __author__ = "Umberto Ciccia"

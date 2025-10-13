@@ -1,10 +1,10 @@
-# Easy MLOps
+# Make MLOps Easy
 
 Make MLOps easier with an AI-powered framework that abstracts all phases of an MLOps pipeline.
 
 ## Overview
 
-Easy MLOps is a comprehensive framework that simplifies the entire machine learning operations pipeline. With a single command, you can:
+Make MLOps Easy is a comprehensive framework that simplifies the entire machine learning operations pipeline. With a single command, you can:
 
 - **Data Preprocessing**: Automatic handling of missing values, feature scaling, and categorical encoding
 - **Model Training**: Intelligent model selection and hyperparameter tuning
@@ -32,8 +32,8 @@ pip install make-mlops-easy
 Build the image locally and expose the CLI:
 
 ```bash
-docker build -t easy-mlops .
-docker run --rm easy-mlops --help
+docker build -t make-mlops-easy .
+docker run --rm make-mlops-easy --help
 ```
 
 Mount data and persist model artifacts by binding host directories:
@@ -42,10 +42,10 @@ Mount data and persist model artifacts by binding host directories:
 docker run --rm \
   -v "$(pwd)/data:/data" \
   -v "$(pwd)/models:/app/models" \
-  easy-mlops train /data/dataset.csv --target price
+  make-mlops-easy train /data/dataset.csv --target price
 ```
 
-The container entrypoint is `easy-mlops`, so any CLI subcommand can be passed as usual.
+The container entrypoint is `make-mlops-easy`, so any CLI subcommand can be passed as usual.
 
 ## Quick Start
 
@@ -54,7 +54,7 @@ The container entrypoint is `easy-mlops`, so any CLI subcommand can be passed as
 Train a machine learning model with a single command:
 
 ```bash
-easy-mlops train data.csv --target price
+make-mlops-easy train data.csv --target price
 ```
 
 This will:
@@ -69,7 +69,7 @@ This will:
 Use your deployed model to make predictions:
 
 ```bash
-easy-mlops predict new_data.csv models/deployment_20240101_120000
+make-mlops-easy predict new_data.csv models/deployment_20240101_120000
 ```
 
 ### 3. Check Model Status
@@ -77,7 +77,7 @@ easy-mlops predict new_data.csv models/deployment_20240101_120000
 Get information about your deployed model:
 
 ```bash
-easy-mlops status models/deployment_20240101_120000
+make-mlops-easy status models/deployment_20240101_120000
 ```
 
 ### 4. View Observability Reports
@@ -85,18 +85,18 @@ easy-mlops status models/deployment_20240101_120000
 Generate detailed monitoring reports:
 
 ```bash
-easy-mlops observe models/deployment_20240101_120000
+make-mlops-easy observe models/deployment_20240101_120000
 ```
 
 ## CLI Commands
 
-### `easy-mlops train`
+### `make-mlops-easy train`
 
 Train a machine learning model on your data.
 
 **Usage:**
 ```bash
-easy-mlops train DATA_PATH [OPTIONS]
+make-mlops-easy train DATA_PATH [OPTIONS]
 ```
 
 **Options:**
@@ -107,22 +107,22 @@ easy-mlops train DATA_PATH [OPTIONS]
 **Examples:**
 ```bash
 # Basic training
-easy-mlops train data.csv --target label
+make-mlops-easy train data.csv --target label
 
 # With custom configuration
-easy-mlops train data.json -t price -c config.yaml
+make-mlops-easy train data.json -t price -c config.yaml
 
 # Train without deploying
-easy-mlops train data.csv --target label --no-deploy
+make-mlops-easy train data.csv --target label --no-deploy
 ```
 
-### `easy-mlops predict`
+### `make-mlops-easy predict`
 
 Make predictions using a deployed model.
 
 **Usage:**
 ```bash
-easy-mlops predict DATA_PATH MODEL_DIR [OPTIONS]
+make-mlops-easy predict DATA_PATH MODEL_DIR [OPTIONS]
 ```
 
 **Options:**
@@ -132,19 +132,19 @@ easy-mlops predict DATA_PATH MODEL_DIR [OPTIONS]
 **Examples:**
 ```bash
 # Basic prediction
-easy-mlops predict new_data.csv models/deployment_20240101_120000
+make-mlops-easy predict new_data.csv models/deployment_20240101_120000
 
 # Save predictions to file
-easy-mlops predict data.json models/latest -o predictions.json
+make-mlops-easy predict data.json models/latest -o predictions.json
 ```
 
-### `easy-mlops status`
+### `make-mlops-easy status`
 
 Get status and metrics for a deployed model.
 
 **Usage:**
 ```bash
-easy-mlops status MODEL_DIR [OPTIONS]
+make-mlops-easy status MODEL_DIR [OPTIONS]
 ```
 
 **Options:**
@@ -152,16 +152,16 @@ easy-mlops status MODEL_DIR [OPTIONS]
 
 **Example:**
 ```bash
-easy-mlops status models/deployment_20240101_120000
+make-mlops-easy status models/deployment_20240101_120000
 ```
 
-### `easy-mlops observe`
+### `make-mlops-easy observe`
 
 Generate observability report for a deployed model.
 
 **Usage:**
 ```bash
-easy-mlops observe MODEL_DIR [OPTIONS]
+make-mlops-easy observe MODEL_DIR [OPTIONS]
 ```
 
 **Options:**
@@ -171,19 +171,19 @@ easy-mlops observe MODEL_DIR [OPTIONS]
 **Examples:**
 ```bash
 # View report in terminal
-easy-mlops observe models/deployment_20240101_120000
+make-mlops-easy observe models/deployment_20240101_120000
 
 # Save report to file
-easy-mlops observe models/latest -o report.txt
+make-mlops-easy observe models/latest -o report.txt
 ```
 
-### `easy-mlops init`
+### `make-mlops-easy init`
 
 Initialize a new MLOps project with default configuration.
 
 **Usage:**
 ```bash
-easy-mlops init [OPTIONS]
+make-mlops-easy init [OPTIONS]
 ```
 
 **Options:**
@@ -191,15 +191,15 @@ easy-mlops init [OPTIONS]
 
 **Example:**
 ```bash
-easy-mlops init -o my-config.yaml
+make-mlops-easy init -o my-config.yaml
 ```
 
 ## Configuration
 
-Easy MLOps uses YAML configuration files to customize behavior. Generate a default configuration:
+Make MLOps Easy uses YAML configuration files to customize behavior. Generate a default configuration:
 
 ```bash
-easy-mlops init
+make-mlops-easy init
 ```
 
 ### Configuration Structure

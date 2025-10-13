@@ -1,4 +1,4 @@
-"""Setup script for Easy MLOps."""
+"""Setup script for Make MLOps Easy."""
 
 from setuptools import setup
 

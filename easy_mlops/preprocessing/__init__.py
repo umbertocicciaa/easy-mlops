@@ -1,4 +1,4 @@
-"""Data preprocessing module for Easy MLOps."""
+"""Data preprocessing module for Make MLOps Easy."""
 
 from easy_mlops.preprocessing.preprocessor import DataPreprocessor
 

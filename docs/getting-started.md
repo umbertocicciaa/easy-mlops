@@ -1,6 +1,6 @@
 # Quick Start
 
-This guide walks through installing Easy MLOps, preparing a dataset, and running the end-to-end pipeline locally.
+This guide walks through installing Make MLOps Easy, preparing a dataset, and running the end-to-end pipeline locally.
 
 ## Prerequisites
 
@@ -13,8 +13,8 @@ This guide walks through installing Easy MLOps, preparing a dataset, and running
 Clone the repository and install the package in editable mode:
 
 ```bash
-git clone https://github.com/umbertocicciaa/easy-mlops.git
-cd easy-mlops
+git clone https://github.com/umbertocicciaa/make-mlops-easy.git
+cd make-mlops-easy
 make install-dev
 ```
 
@@ -25,7 +25,7 @@ make install-dev
 Once the project is published, you will be able to install the released package from PyPI:
 
 ```bash
-pip install easy-mlops
+pip install make-mlops-easy
 ```
 
 ## Training a Model
@@ -57,7 +57,7 @@ make docker-build
 docker run --rm \
   -v "$(pwd)/data:/data" \
   -v "$(pwd)/models:/app/models" \
-  easy-mlops train /data/train.csv --target price
+  make-mlops-easy train /data/train.csv --target price
 ```
 
 Mount a host directory when you need to persist models or pass datasets into the container.

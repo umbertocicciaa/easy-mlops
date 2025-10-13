@@ -1,4 +1,4 @@
-"""Configuration management for Easy MLOps."""
+"""Configuration management for Make MLOps Easy."""
 
 import os
 import yaml
@@ -7,7 +7,7 @@ from typing import Dict, Any, Optional
 
 
 class Config:
-    """Configuration manager for Easy MLOps pipeline."""
+    """Configuration manager for Make MLOps Easy pipeline."""
 
     DEFAULT_CONFIG = {
         "preprocessing": {

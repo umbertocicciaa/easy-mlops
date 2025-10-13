@@ -1,6 +1,6 @@
 # Pipeline Architecture
 
-Easy MLOps centers around the `MLOpsPipeline` orchestrator (`easy_mlops/pipeline.py`). The pipeline coordinates four core components:
+Make MLOps Easy centers around the `MLOpsPipeline` orchestrator (`easy_mlops/pipeline.py`). The pipeline coordinates four core components:
 
 1. **Configuration (`Config`)** – Loads defaults and optional YAML overrides.
 2. **Preprocessing (`DataPreprocessor`)** – Cleans and prepares input data.

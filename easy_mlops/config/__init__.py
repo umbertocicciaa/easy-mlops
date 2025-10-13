@@ -1,4 +1,4 @@
-"""Configuration management for Easy MLOps."""
+"""Configuration management for Make MLOps Easy."""
 
 from easy_mlops.config.config import Config
 

@@ -5,8 +5,8 @@ VENV ?= .venv
 PYTHON_BIN := $(VENV)/bin/python
 PIP := $(VENV)/bin/pip
 PYTEST := $(VENV)/bin/pytest
-CLI := $(VENV)/bin/easy-mlops
-IMAGE ?= easy-mlops
+CLI := $(VENV)/bin/make-mlops-easy
+IMAGE ?= make-mlops-easy
 
 .PHONY: help venv install install-dev lint format test coverage docs-serve docs-build docs-deploy train predict status observe docker-build docker-run docker-shell clean
 
@@ -79,7 +79,7 @@ observe: venv ## Generate observability report (MODEL_DIR=deployment_dir CONFIG=
 	echo "$$cmd"; \
 	eval "$$cmd"
 
-docker-build: ## Build Docker image (IMAGE=easy-mlops)
+docker-build: ## Build Docker image (IMAGE=make-mlops-easy)
 	docker build -t $(IMAGE) .
 
 docker-run: ## Run Docker image (CMD defaults to --help)

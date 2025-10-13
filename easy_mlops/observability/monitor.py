@@ -1,4 +1,4 @@
-"""Model observability module for Easy MLOps."""
+"""Model observability module for Make MLOps Easy."""
 
 import json
 from pathlib import Path
