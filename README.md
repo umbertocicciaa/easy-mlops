@@ -27,6 +27,26 @@ pip install -e .
 pip install easy-mlops
 ```
 
+### Using Docker
+
+Build the image locally and expose the CLI:
+
+```bash
+docker build -t easy-mlops .
+docker run --rm easy-mlops --help
+```
+
+Mount data and persist model artifacts by binding host directories:
+
+```bash
+docker run --rm \
+  -v "$(pwd)/data:/data" \
+  -v "$(pwd)/models:/app/models" \
+  easy-mlops train /data/dataset.csv --target price
+```
+
+The container entrypoint is `easy-mlops`, so any CLI subcommand can be passed as usual.
+
 ## Quick Start
 
 ### 1. Train a Model

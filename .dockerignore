@@ -1,0 +1,15 @@
+.git
+.gitignore
+__pycache__/
+.pytest_cache/
+.mypy_cache/
+.venv/
+*.pyc
+*.pyo
+*.pyd
+*.swp
+*.egg-info/
+build/
+dist/
+models/
+examples/
