@@ -42,13 +42,19 @@ class ModelMonitor:
         log_entry = {
             "timestamp": datetime.now().isoformat(),
             "model_version": model_version,
-            "prediction": prediction if isinstance(prediction, (int, float, str)) else str(prediction),
+            "prediction": (
+                prediction
+                if isinstance(prediction, (int, float, str))
+                else str(prediction)
+            ),
             "metadata": metadata or {},
         }
 
         self.predictions_log.append(log_entry)
 
-    def log_metrics(self, metrics: Dict[str, float], model_version: str = "1.0.0") -> None:
+    def log_metrics(
+        self, metrics: Dict[str, float], model_version: str = "1.0.0"
+    ) -> None:
         """Log model metrics.
 
         Args:
@@ -98,7 +104,7 @@ class ModelMonitor:
             return {"message": "No metrics logged yet"}
 
         latest_metrics = self.metrics_history[-1]
-        
+
         summary = {
             "latest_metrics": latest_metrics,
             "total_logs": len(self.metrics_history),
@@ -110,7 +116,7 @@ class ModelMonitor:
         if len(self.metrics_history) > 1:
             trends = {}
             metric_names = latest_metrics["metrics"].keys()
-            
+
             for metric_name in metric_names:
                 values = [
                     entry["metrics"].get(metric_name)
@@ -124,7 +130,7 @@ class ModelMonitor:
                         "min": np.min(values),
                         "max": np.max(values),
                     }
-            
+
             summary["trends"] = trends
 
         return summary
@@ -216,12 +222,12 @@ class ModelMonitor:
             report.append(f"  Total logs: {metrics_summary['total_logs']}")
             report.append(f"  First log: {metrics_summary['first_log']}")
             report.append(f"  Last log: {metrics_summary['last_log']}")
-            
+
             if "latest_metrics" in metrics_summary:
                 report.append(f"  Latest metrics:")
                 for key, value in metrics_summary["latest_metrics"]["metrics"].items():
                     report.append(f"    {key}: {value:.4f}")
-        
+
         report.append("")
 
         # Predictions summary

@@ -74,7 +74,7 @@ class MLOpsPipeline:
             print(f"  ✓ Model deployed to: {deployment_info['deployment_dir']}")
             print(f"  ✓ Model path: {deployment_info['model_path']}")
             print(f"  ✓ Preprocessor path: {deployment_info['preprocessor_path']}")
-            
+
             if "endpoint_path" in deployment_info:
                 print(f"  ✓ Endpoint script: {deployment_info['endpoint_path']}")
 
@@ -86,7 +86,7 @@ class MLOpsPipeline:
         print("\nStep 4/4: Setup Observability...")
         print("  ✓ Monitoring configured")
         print("  ✓ Metrics logging enabled")
-        
+
         # Save monitoring logs if deployment happened
         if deploy and "deployment" in self.results:
             log_dir = Path(self.results["deployment"]["deployment_dir"]) / "logs"
@@ -131,11 +131,11 @@ class MLOpsPipeline:
 
         # Load and preprocess data
         df = preprocessor.load_data(data_path)
-        
+
         # Remove target column if it exists in the data
         if preprocessor.target_column and preprocessor.target_column in df.columns:
             df = df.drop(columns=[preprocessor.target_column])
-        
+
         X, _ = preprocessor.prepare_data(df, target_column=None, fit=False)
 
         # Make predictions
@@ -150,7 +150,7 @@ class MLOpsPipeline:
                     prediction=pred,
                     model_version=metadata.get("version", "1.0.0"),
                 )
-            
+
             # Save logs
             log_dir = Path(model_dir) / "logs"
             monitor.save_logs(str(log_dir))
@@ -196,8 +196,8 @@ class MLOpsPipeline:
         """
         monitor = ModelMonitor(self.config.get("observability"))
         log_dir = Path(model_dir) / "logs"
-        
+
         if log_dir.exists():
             monitor.load_logs(str(log_dir))
-        
+
         return monitor.generate_report()

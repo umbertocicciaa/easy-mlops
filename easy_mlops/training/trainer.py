@@ -105,10 +105,16 @@ class ModelTrainer:
         random_state = self.config.get("random_state", 42)
 
         return train_test_split(
-            X, y, test_size=test_size, random_state=random_state, stratify=y if self.is_classifier else None
+            X,
+            y,
+            test_size=test_size,
+            random_state=random_state,
+            stratify=y if self.is_classifier else None,
         )
 
-    def evaluate_model(self, X_test: pd.DataFrame, y_test: pd.Series) -> Dict[str, float]:
+    def evaluate_model(
+        self, X_test: pd.DataFrame, y_test: pd.Series
+    ) -> Dict[str, float]:
         """Evaluate model performance.
 
         Args:

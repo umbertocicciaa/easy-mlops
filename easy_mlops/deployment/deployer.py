@@ -187,7 +187,9 @@ if __name__ == "__main__":
             create_endpoint = self.config.get("create_endpoint", False)
 
         if create_endpoint:
-            endpoint_path = self.create_endpoint_script(deployment_info["deployment_dir"])
+            endpoint_path = self.create_endpoint_script(
+                deployment_info["deployment_dir"]
+            )
             deployment_info["endpoint_path"] = endpoint_path
 
         return deployment_info

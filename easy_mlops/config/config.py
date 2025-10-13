@@ -62,7 +62,11 @@ class Config:
             user: User configuration dictionary.
         """
         for key, value in user.items():
-            if key in default and isinstance(default[key], dict) and isinstance(value, dict):
+            if (
+                key in default
+                and isinstance(default[key], dict)
+                and isinstance(value, dict)
+            ):
                 self._merge_configs(default[key], value)
             else:
                 default[key] = value

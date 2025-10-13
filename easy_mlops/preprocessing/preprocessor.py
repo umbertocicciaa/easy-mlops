@@ -35,7 +35,7 @@ class DataPreprocessor:
             ValueError: If file format is not supported.
         """
         data_path = Path(data_path)
-        
+
         if data_path.suffix == ".csv":
             return pd.read_csv(data_path)
         elif data_path.suffix == ".json":
@@ -55,7 +55,7 @@ class DataPreprocessor:
             DataFrame with missing values handled.
         """
         strategy = self.config.get("handle_missing", "drop")
-        
+
         if strategy == "drop":
             return df.dropna()
         elif strategy == "mean":
@@ -68,7 +68,9 @@ class DataPreprocessor:
             return df
         elif strategy == "mode":
             for col in df.columns:
-                df[col] = df[col].fillna(df[col].mode()[0] if not df[col].mode().empty else df[col])
+                df[col] = df[col].fillna(
+                    df[col].mode()[0] if not df[col].mode().empty else df[col]
+                )
             return df
         else:
             return df
@@ -97,7 +99,9 @@ class DataPreprocessor:
                     # Handle unseen categories
                     known_classes = set(self.encoders[col].classes_)
                     df[col] = df[col].apply(
-                        lambda x: x if x in known_classes else self.encoders[col].classes_[0]
+                        lambda x: (
+                            x if x in known_classes else self.encoders[col].classes_[0]
+                        )
                     )
                     df[col] = self.encoders[col].transform(df[col].astype(str))
 
