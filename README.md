@@ -24,7 +24,7 @@ pip install -e .
 ### Using pip (once published)
 
 ```bash
-pip install easy-mlops
+pip install make-mlops-easy
 ```
 
 ### Using Docker
