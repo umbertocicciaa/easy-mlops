@@ -210,3 +210,5 @@ __marimo__/
 models/
 *.joblib
 mlops-config.yaml
+coverage_data/
+trace_summary/
