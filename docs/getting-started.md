@@ -13,16 +13,16 @@ This guide walks through installing Make MLOps Easy, preparing a dataset, and ru
 Clone the repository and install the package in editable mode:
 
 ```bash
-git clone https://github.com/umbertocicciaa/make-mlops-easy.git
-cd make-mlops-easy
-make install-dev
+git clone https://github.com/umbertocicciaa/easy-mlops.git
+cd easy-mlops
+pip install -e .
 ```
 
 `make install-dev` creates a virtual environment, installs the project, and pulls in development tools such as pytest, black, flake8, and MkDocs.
 
 ### Alternative: pip install
 
-Once the project is published, you will be able to install the released package from PyPI:
+You will be able to install the released package from PyPI:
 
 ```bash
 pip install make-mlops-easy
@@ -33,7 +33,7 @@ pip install make-mlops-easy
 Prepare a CSV file containing your features and target column (the target is assumed to be the last column when not specified). Then run:
 
 ```bash
-make train DATA=data/train.csv TARGET=price
+make-mlops-easy train DATA=data/train.csv TARGET=price
 ```
 
 This executes the CLI, which orchestrates preprocessing, training, deployment, and observability setup. Artifacts are written to `models/deployment_<timestamp>/`.
@@ -43,7 +43,7 @@ This executes the CLI, which orchestrates preprocessing, training, deployment, a
 To score a new dataset using a previously deployed model directory:
 
 ```bash
-make predict DATA=data/new_samples.csv MODEL_DIR=models/deployment_20240101_120000 OUTPUT=predictions.json
+make-mlops-easy predict DATA=data/new_samples.csv MODEL_DIR=models/deployment_20240101_120000 OUTPUT=predictions.json
 ```
 
 Predictions are printed to the console and saved to `predictions.json` if the `OUTPUT` argument is supplied.

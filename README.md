@@ -21,7 +21,7 @@ cd easy-mlops
 pip install -e .
 ```
 
-### Using pip (once published)
+### Using pip
 
 ```bash
 pip install make-mlops-easy
