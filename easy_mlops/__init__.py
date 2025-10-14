@@ -1,6 +1,6 @@
 """Make MLOps Easy - Make MLOps easier with automated pipelines."""
 
-__version__ = "0.1.1"
+__version__ = "0.2.0"
 __author__ = "Umberto Domenico Ciccia"
 __description__ = "Make MLOps easier with an AI-powered framework"
 
