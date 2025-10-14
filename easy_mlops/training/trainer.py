@@ -6,6 +6,7 @@ from sklearn.model_selection import train_test_split, cross_val_score
 from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
 from sklearn.linear_model import LogisticRegression, LinearRegression
 from sklearn.metrics import accuracy_score, f1_score, mean_squared_error, r2_score
+from xgboost import XGBRegressor, XGBClassifier
 from typing import Dict, Any, Optional, Tuple
 import joblib
 
@@ -86,6 +87,19 @@ class ModelTrainer:
                 random_state=self.config.get("random_state", 42),
                 n_estimators=100,
             )
+        elif model_type == "xgboost":
+            if problem_type == "classification":
+                return XGBClassifier(
+                    random_state=self.config.get("random_state", 42),
+                    n_estimators=100,
+                    learning_rate=0.1,
+                )
+            else:
+                return XGBRegressor(
+                    random_state=self.config.get("random_state", 42),
+                    n_estimators=100,
+                    learning_rate=0.1,
+                )
         else:
             raise ValueError(f"Unknown model type: {model_type}")
 

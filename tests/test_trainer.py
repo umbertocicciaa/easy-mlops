@@ -1,6 +1,7 @@
 import pytest
 from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
 from sklearn.linear_model import LinearRegression, LogisticRegression
+from xgboost import XGBClassifier, XGBRegressor
 
 from easy_mlops.training import ModelTrainer
 
@@ -78,7 +79,15 @@ def test_select_model_variants(trainer_config):
         trainer.select_model("regression", "random_forest_regressor"),
         RandomForestRegressor,
     )
-
+    assert isinstance(
+        trainer.select_model("regression", "xgboost"),
+        XGBRegressor,
+    )
+    assert isinstance(
+        trainer.select_model("classification", "xgboost"),
+        XGBClassifier,
+    )
+    
     with pytest.raises(ValueError):
         trainer.select_model("classification", "unknown_model")
 
