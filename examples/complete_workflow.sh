@@ -11,7 +11,12 @@ echo ""
 
 # Step 1: Initialize project
 echo "Step 1: Initialize project configuration"
-make-mlops-easy init -o examples/workflow-config.yaml
+if [ -f examples/workflow-config.yaml ]; then
+    echo "Configuration file already exists. Skipping initialization."
+else
+    echo "Creating new configuration file."
+    make-mlops-easy init -o examples/workflow-config.yaml
+fi
 echo ""
 
 # Step 2: Train model
