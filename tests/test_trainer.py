@@ -87,7 +87,7 @@ def test_select_model_variants(trainer_config):
         trainer.select_model("classification", "xgboost"),
         XGBClassifier,
     )
-    
+
     with pytest.raises(ValueError):
         trainer.select_model("classification", "unknown_model")
 
