@@ -4,7 +4,7 @@ This guide walks through installing Make MLOps Easy, preparing a dataset, and ru
 
 ## Prerequisites
 
-- Python 3.9 or later
+- Python 3.10 or later
 - `git`
 - (Optional) Docker for containerized runs
 
