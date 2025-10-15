@@ -21,7 +21,7 @@ cd easy-mlops
 pip install -e .
 ```
 
-### Using pip (once published)
+### Using pip
 
 ```bash
 pip install make-mlops-easy
@@ -293,7 +293,7 @@ easy-mlops/
 
 ## Requirements
 
-- Python >= 3.8
+- Python >= 3.10
 - click >= 8.0.0
 - pandas >= 1.3.0
 - scikit-learn >= 1.0.0
@@ -349,7 +349,7 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## Author
 
-Umberto Ciccia
+Umberto Domenico Ciccia
 
 ## Links
 
