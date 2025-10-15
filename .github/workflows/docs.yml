@@ -8,13 +8,6 @@ on:
       - 'docs/**'
       - '.github/workflows/docs.yml'
       - 'pyproject.toml'
-  pull_request:
-    branches: [main]
-    paths:
-      - 'mkdocs.yml'
-      - 'docs/**'
-      - '.github/workflows/docs.yml'
-      - 'pyproject.toml'
   workflow_dispatch:
 
 permissions:
