@@ -27,6 +27,15 @@ jobs:
       - name: Upgrade pip
         run: python -m pip install --upgrade pip
 
+      - name: "macOS: install XGBoost prerequisites"
+        if: matrix.os == 'macos-latest'
+        run: |
+          echo "Installing Xcode command line tools (if not present)"
+          sudo xcode-select --install || true
+          # Homebrew is typically present on GitHub macOS runners; ensure packages are available
+          brew update || true
+          brew install cmake libomp || true
+
       - name: Install dependencies
         run: |
           pip install -e .[dev]
