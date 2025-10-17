@@ -1,218 +1,130 @@
 """Model observability module for Make MLOps Easy."""
 
-import json
+from __future__ import annotations
+
 from pathlib import Path
-from typing import Dict, Any, List, Optional
-from datetime import datetime
-import pandas as pd
-import numpy as np
+from typing import Any, Dict, List, Optional, Type
+
+from easy_mlops.observability.steps import (
+    DEFAULT_STEP_REGISTRY,
+    MetricThresholdStep,
+    MetricsLoggerStep,
+    ObservabilityStep,
+    PredictionsLoggerStep,
+)
 
 
 class ModelMonitor:
     """Handles model monitoring and observability."""
 
-    def __init__(self, config: Dict[str, Any]):
+    STEP_REGISTRY: Dict[str, Type[ObservabilityStep]] = DEFAULT_STEP_REGISTRY.copy()
+
+    def __init__(self, config: Optional[Dict[str, Any]] = None):
         """Initialize model monitor.
 
         Args:
             config: Observability configuration dictionary.
         """
-        self.config = config
-        self.metrics_history = []
-        self.predictions_log = []
+        self.config: Dict[str, Any] = config or {}
+        self.steps: List[ObservabilityStep] = self._initialize_steps()
+        self.metrics_history: List[Dict[str, Any]] = []
+        self.predictions_log: List[Dict[str, Any]] = []
+        self._refresh_step_shortcuts()
+
+    @classmethod
+    def register_step(cls, step: Type[ObservabilityStep]) -> None:
+        """Register a custom observability step class."""
+        if not issubclass(step, ObservabilityStep):
+            raise TypeError("Custom step must inherit from ObservabilityStep.")
+        cls.STEP_REGISTRY[step.name] = step
+
+    def get_step(self, name: str) -> Optional[ObservabilityStep]:
+        """Retrieve a step instance by its registry name."""
+        return next((step for step in self.steps if step.name == name), None)
 
     def log_prediction(
         self,
         input_data: Any,
         prediction: Any,
         model_version: str = "1.0.0",
-        metadata: Optional[Dict] = None,
+        metadata: Optional[Dict[str, Any]] = None,
     ) -> None:
-        """Log a prediction for monitoring.
+        """Log a prediction for monitoring."""
+        for step in self.steps:
+            step.on_log_prediction(
+                input_data=input_data,
+                prediction=prediction,
+                model_version=model_version,
+                metadata=metadata,
+            )
 
-        Args:
-            input_data: Input data for prediction.
-            prediction: Model prediction.
-            model_version: Version of the model used.
-            metadata: Additional metadata to log.
-        """
-        if not self.config.get("log_predictions", True):
-            return
-
-        log_entry = {
-            "timestamp": datetime.now().isoformat(),
-            "model_version": model_version,
-            "prediction": (
-                prediction
-                if isinstance(prediction, (int, float, str))
-                else str(prediction)
-            ),
-            "metadata": metadata or {},
-        }
-
-        self.predictions_log.append(log_entry)
+        self._refresh_step_shortcuts()
 
     def log_metrics(
         self, metrics: Dict[str, float], model_version: str = "1.0.0"
     ) -> None:
-        """Log model metrics.
+        """Log model metrics."""
+        for step in self.steps:
+            step.on_log_metrics(metrics=metrics, model_version=model_version)
 
-        Args:
-            metrics: Dictionary of metric names and values.
-            model_version: Version of the model.
-        """
-        if not self.config.get("track_metrics", True):
-            return
-
-        metric_entry = {
-            "timestamp": datetime.now().isoformat(),
-            "model_version": model_version,
-            "metrics": metrics,
-        }
-
-        self.metrics_history.append(metric_entry)
+        self._refresh_step_shortcuts()
 
     def check_metric_threshold(self, metric_name: str, value: float) -> bool:
-        """Check if a metric exceeds alert threshold.
+        """Check if a metric exceeds alert threshold."""
+        for step in self.steps:
+            result = step.check_metric_threshold(metric_name, value)
+            if result is not None:
+                return result
 
-        Args:
-            metric_name: Name of the metric.
-            value: Metric value.
+        # Fallback to default behaviour for backwards compatibility.
+        default_threshold = self.config.get("alert_threshold", 0.8)
+        if metric_name in {"mse", "rmse", "mae"}:
+            return value > default_threshold
 
-        Returns:
-            True if alert should be triggered, False otherwise.
-        """
-        threshold = self.config.get("alert_threshold", 0.8)
-
-        # For accuracy-like metrics (higher is better)
-        if metric_name in ["accuracy", "f1_score", "r2_score"]:
-            return value < threshold
-
-        # For error-like metrics (lower is better)
-        if metric_name in ["mse", "rmse", "mae"]:
-            return value > threshold
-
-        return False
+        return value < default_threshold
 
     def get_metrics_summary(self) -> Dict[str, Any]:
-        """Get summary of logged metrics.
+        """Get summary of logged metrics."""
+        step = self.get_step(MetricsLoggerStep.name)
+        if step is None:
+            return {"message": "Metrics logging disabled"}
 
-        Returns:
-            Dictionary with metrics summary.
-        """
-        if not self.metrics_history:
-            return {"message": "No metrics logged yet"}
-
-        latest_metrics = self.metrics_history[-1]
-
-        summary = {
-            "latest_metrics": latest_metrics,
-            "total_logs": len(self.metrics_history),
-            "first_log": self.metrics_history[0]["timestamp"],
-            "last_log": latest_metrics["timestamp"],
-        }
-
-        # Calculate metric trends if multiple entries
-        if len(self.metrics_history) > 1:
-            trends = {}
-            metric_names = latest_metrics["metrics"].keys()
-
-            for metric_name in metric_names:
-                values = [
-                    entry["metrics"].get(metric_name)
-                    for entry in self.metrics_history
-                    if metric_name in entry["metrics"]
-                ]
-                if values:
-                    trends[metric_name] = {
-                        "mean": np.mean(values),
-                        "std": np.std(values),
-                        "min": np.min(values),
-                        "max": np.max(values),
-                    }
-
-            summary["trends"] = trends
-
-        return summary
+        summary = step.get_metrics_summary()
+        return summary if summary is not None else {"message": "No metrics logged yet"}
 
     def get_predictions_summary(self) -> Dict[str, Any]:
-        """Get summary of logged predictions.
+        """Get summary of logged predictions."""
+        step = self.get_step(PredictionsLoggerStep.name)
+        if step is None:
+            return {"message": "Prediction logging disabled"}
 
-        Returns:
-            Dictionary with predictions summary.
-        """
-        if not self.predictions_log:
-            return {"message": "No predictions logged yet"}
-
-        return {
-            "total_predictions": len(self.predictions_log),
-            "first_prediction": self.predictions_log[0]["timestamp"],
-            "last_prediction": self.predictions_log[-1]["timestamp"],
-            "recent_predictions": self.predictions_log[-5:],
-        }
+        summary = step.get_predictions_summary()
+        return (
+            summary if summary is not None else {"message": "No predictions logged yet"}
+        )
 
     def save_logs(self, output_dir: str) -> Dict[str, str]:
-        """Save logs to files.
+        """Save logs to files."""
+        output_path = Path(output_dir)
+        saved_files: Dict[str, str] = {}
 
-        Args:
-            output_dir: Directory to save logs.
-
-        Returns:
-            Dictionary with paths to saved log files.
-        """
-        output_dir = Path(output_dir)
-        output_dir.mkdir(parents=True, exist_ok=True)
-
-        saved_files = {}
-
-        # Save metrics history
-        if self.metrics_history:
-            metrics_path = output_dir / "metrics_history.json"
-            with open(metrics_path, "w") as f:
-                json.dump(self.metrics_history, f, indent=2)
-            saved_files["metrics"] = str(metrics_path)
-
-        # Save predictions log
-        if self.predictions_log:
-            predictions_path = output_dir / "predictions_log.json"
-            with open(predictions_path, "w") as f:
-                json.dump(self.predictions_log, f, indent=2)
-            saved_files["predictions"] = str(predictions_path)
+        for step in self.steps:
+            saved_files.update(step.save(output_path))
 
         return saved_files
 
     def load_logs(self, log_dir: str) -> None:
-        """Load logs from files.
+        """Load logs from files."""
+        log_path = Path(log_dir)
+        for step in self.steps:
+            step.load(log_path)
 
-        Args:
-            log_dir: Directory containing log files.
-        """
-        log_dir = Path(log_dir)
-
-        # Load metrics history
-        metrics_path = log_dir / "metrics_history.json"
-        if metrics_path.exists():
-            with open(metrics_path, "r") as f:
-                self.metrics_history = json.load(f)
-
-        # Load predictions log
-        predictions_path = log_dir / "predictions_log.json"
-        if predictions_path.exists():
-            with open(predictions_path, "r") as f:
-                self.predictions_log = json.load(f)
+        self._refresh_step_shortcuts()
 
     def generate_report(self) -> str:
-        """Generate a monitoring report.
+        """Generate a monitoring report."""
+        report = ["=" * 60, "MODEL MONITORING REPORT", "=" * 60, ""]
 
-        Returns:
-            Formatted report string.
-        """
-        report = ["=" * 60]
-        report.append("MODEL MONITORING REPORT")
-        report.append("=" * 60)
-        report.append("")
-
-        # Metrics summary
         report.append("METRICS SUMMARY:")
         report.append("-" * 60)
         metrics_summary = self.get_metrics_summary()
@@ -223,14 +135,13 @@ class ModelMonitor:
             report.append(f"  First log: {metrics_summary['first_log']}")
             report.append(f"  Last log: {metrics_summary['last_log']}")
 
-            if "latest_metrics" in metrics_summary:
-                report.append(f"  Latest metrics:")
-                for key, value in metrics_summary["latest_metrics"]["metrics"].items():
+            latest = metrics_summary.get("latest_metrics")
+            if latest:
+                report.append("  Latest metrics:")
+                for key, value in latest["metrics"].items():
                     report.append(f"    {key}: {value:.4f}")
 
         report.append("")
-
-        # Predictions summary
         report.append("PREDICTIONS SUMMARY:")
         report.append("-" * 60)
         pred_summary = self.get_predictions_summary()
@@ -245,3 +156,72 @@ class ModelMonitor:
         report.append("=" * 60)
 
         return "\n".join(report)
+
+    # Internal helpers -----------------------------------------------------
+
+    def _initialize_steps(self) -> List[ObservabilityStep]:
+        steps_config = self.config.get("steps")
+
+        if steps_config:
+            return [self._build_step_from_spec(spec) for spec in steps_config]
+
+        steps: List[ObservabilityStep] = []
+
+        if self.config.get("track_metrics", True):
+            steps.append(self._create_step(MetricsLoggerStep.name, {"enabled": True}))
+
+        if self.config.get("log_predictions", True):
+            steps.append(
+                self._create_step(PredictionsLoggerStep.name, {"enabled": True})
+            )
+
+        default_threshold = self.config.get("alert_threshold", 0.8)
+        metric_thresholds = self.config.get("metric_thresholds")
+        metric_directions = self.config.get("metric_directions")
+
+        steps.append(
+            self._create_step(
+                MetricThresholdStep.name,
+                {
+                    "default_threshold": default_threshold,
+                    "metric_thresholds": metric_thresholds,
+                    "metric_directions": metric_directions,
+                },
+            )
+        )
+
+        return steps
+
+    def _create_step(
+        self, step_name: str, params: Optional[Dict[str, Any]] = None
+    ) -> ObservabilityStep:
+        params = params or {}
+        registry = self.STEP_REGISTRY
+
+        if step_name not in registry:
+            raise ValueError(f"Unknown observability step: {step_name}")
+
+        step_cls = registry[step_name]
+        return step_cls.from_config(params)
+
+    def _build_step_from_spec(self, spec: Any) -> ObservabilityStep:
+        if isinstance(spec, str):
+            return self._create_step(spec)
+
+        if isinstance(spec, dict):
+            step_type = spec.get("type")
+            if not step_type:
+                raise ValueError(
+                    "Step configuration dictionaries must include a 'type' key."
+                )
+            params = spec.get("params") or {}
+            return self._create_step(step_type, params)
+
+        raise TypeError("Step specification must be a string or dict.")
+
+    def _refresh_step_shortcuts(self) -> None:
+        metrics_step = self.get_step(MetricsLoggerStep.name)
+        self.metrics_history = metrics_step.history if metrics_step else []
+
+        predictions_step = self.get_step(PredictionsLoggerStep.name)
+        self.predictions_log = predictions_step.log if predictions_step else []

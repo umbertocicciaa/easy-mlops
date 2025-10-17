@@ -38,7 +38,9 @@ nav:
       - Quick Start: getting-started.md
       - CLI Reference: cli.md
   - Pipeline:
+      - Preprocessing: preprocessing.md
       - Architecture: pipeline.md
+      - Training: training.md
       - Deployment & Observability: deployment-observability.md
   - Development:
       - Local Development: development.md

@@ -88,6 +88,14 @@ Generate detailed monitoring reports:
 make-mlops-easy observe models/deployment_20240101_120000
 ```
 
+### Examples & Templates
+
+Ready-to-run scripts and curated configuration files live under
+`examples/pipeline/`. The accompanying README walks through staged CLI commands,
+regression/neural-network scenarios, and a programmatic pipeline example. Start
+with `examples/pipeline/scripts/01_train_quickstart.sh` to see the complete
+workflow in action.
+
 ## CLI Commands
 
 ### `make-mlops-easy train`

@@ -27,6 +27,7 @@ flowchart TD
 - Handles missing data (`drop`, `mean`, `median`, `mode`).
 - Label-encodes categorical columns and scales numeric features (configurable).
 - Captures feature column names and the target column for downstream use.
+- See [Data Preprocessing](preprocessing.md) for an in-depth guide to step configuration and customisation.
 
 ### Training
 
@@ -36,6 +37,7 @@ flowchart TD
 - Computes metrics:
   - Classification: accuracy, weighted F1.
   - Regression: MSE, RMSE, R².
+- See [Model Training](training.md) for an in-depth tour of trainer internals and configuration options.
 
 ### Deployment
 

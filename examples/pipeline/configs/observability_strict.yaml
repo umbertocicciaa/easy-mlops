@@ -1,0 +1,24 @@
+# Observability-only overrides with explicit step wiring.
+# Use this when calling `make-mlops-easy observe` to tighten alerts.
+
+observability:
+  steps:
+    - type: metrics_logger
+      params:
+        enabled: true
+    - type: predictions_logger
+      params:
+        enabled: true
+    - type: metric_threshold
+      params:
+        default_threshold: 0.9
+        metric_thresholds:
+          accuracy: 0.88
+          f1_score: 0.85
+          r2_score: 0.6
+          rmse: 75000
+        metric_directions:
+          accuracy: higher
+          f1_score: higher
+          r2_score: higher
+          rmse: lower
