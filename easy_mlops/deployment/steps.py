@@ -42,7 +42,9 @@ class DeploymentStep:
         params = params or {}
         return cls(**params)
 
-    def run(self, context: DeploymentContext) -> None:  # pragma: no cover - abstract hook
+    def run(
+        self, context: DeploymentContext
+    ) -> None:  # pragma: no cover - abstract hook
         raise NotImplementedError
 
 
@@ -81,7 +83,9 @@ class SaveModelStep(DeploymentStep):
 
     def run(self, context: DeploymentContext) -> None:
         if context.deployment_dir is None:
-            raise RuntimeError("Deployment directory must be created before saving the model.")
+            raise RuntimeError(
+                "Deployment directory must be created before saving the model."
+            )
 
         model_path = context.deployment_dir / self.filename
         context.model.save_model(str(model_path))
@@ -97,7 +101,9 @@ class SavePreprocessorStep(DeploymentStep):
 
     def run(self, context: DeploymentContext) -> None:
         if context.deployment_dir is None:
-            raise RuntimeError("Deployment directory must be created before saving the preprocessor.")
+            raise RuntimeError(
+                "Deployment directory must be created before saving the preprocessor."
+            )
 
         preprocessor_path = context.deployment_dir / self.filename
         joblib.dump(context.preprocessor, preprocessor_path)
@@ -113,7 +119,9 @@ class SaveMetadataStep(DeploymentStep):
 
     def run(self, context: DeploymentContext) -> None:
         if context.deployment_dir is None:
-            raise RuntimeError("Deployment directory must be created before saving metadata.")
+            raise RuntimeError(
+                "Deployment directory must be created before saving metadata."
+            )
 
         model_path = context.artifacts.get("model_path")
         preprocessor_path = context.artifacts.get("preprocessor_path")
@@ -188,9 +196,13 @@ class EndpointScriptStep(DeploymentStep):
             return
 
         if context.deployment_dir is None:
-            raise RuntimeError("Deployment directory must be created before writing endpoint script.")
+            raise RuntimeError(
+                "Deployment directory must be created before writing endpoint script."
+            )
 
-        script_template = self.template or context.endpoint_template or DEFAULT_ENDPOINT_TEMPLATE
+        script_template = (
+            self.template or context.endpoint_template or DEFAULT_ENDPOINT_TEMPLATE
+        )
         writer = context.endpoint_writer
 
         if writer is not None:

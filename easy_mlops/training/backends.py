@@ -168,9 +168,7 @@ class SklearnBackend(BaseTrainingBackend):
 
     name = "sklearn"
 
-    def select_model(
-        self, problem_type: str, model_type: Optional[str]
-    ) -> Any:
+    def select_model(self, problem_type: str, model_type: Optional[str]) -> Any:
         """Create an estimator based on the configuration."""
         if model_type is None or model_type == "auto":
             if problem_type == "classification":
@@ -246,9 +244,7 @@ class NeuralNetworkBackend(SklearnBackend):
 
     name = "neural_network"
 
-    def select_model(
-        self, problem_type: str, model_type: Optional[str]
-    ) -> Any:
+    def select_model(self, problem_type: str, model_type: Optional[str]) -> Any:
         """Create a neural network model for the given problem."""
         random_state = self.config.get("random_state", 42)
         hidden_layer_sizes = self.config.get("hidden_layer_sizes", (50, 50))
@@ -294,9 +290,7 @@ class CallableBackend(BaseTrainingBackend):
         self, X: pd.DataFrame, y: pd.Series, model_type: Optional[str] = None
     ) -> TrainingRunResult:
         problem_type = (
-            model_type
-            or self.config.get("problem_type")
-            or self.detect_problem_type(y)
+            model_type or self.config.get("problem_type") or self.detect_problem_type(y)
         )
         is_classifier = problem_type == "classification"
 

@@ -21,7 +21,9 @@ class PreprocessingStep(ABC):
         self.params = params
 
     @classmethod
-    def from_config(cls, params: Optional[Dict[str, object]] = None) -> "PreprocessingStep":
+    def from_config(
+        cls, params: Optional[Dict[str, object]] = None
+    ) -> "PreprocessingStep":
         """Instantiate the step from configuration parameters."""
         params = params or {}
         return cls(**params)
@@ -65,7 +67,11 @@ class MissingValueHandler(PreprocessingStep):
             self._numeric_fill_values = df[numeric_cols].median()
         elif self.strategy == "mode":
             self._mode_fill_values = {
-                col: series.mode(dropna=True)[0] if not series.mode(dropna=True).empty else np.nan
+                col: (
+                    series.mode(dropna=True)[0]
+                    if not series.mode(dropna=True).empty
+                    else np.nan
+                )
                 for col, series in df.items()
             }
         elif self.strategy == "constant":
@@ -81,20 +87,31 @@ class MissingValueHandler(PreprocessingStep):
             return df
 
         if not self._is_fitted and self.strategy != "drop":
-            raise RuntimeError("MissingValueHandler must be fitted before calling transform.")
+            raise RuntimeError(
+                "MissingValueHandler must be fitted before calling transform."
+            )
 
         if self.strategy == "drop":
             return df.dropna()
 
         df_out = df.copy()
 
-        if self.strategy in {"mean", "median"} and self._numeric_fill_values is not None:
+        if (
+            self.strategy in {"mean", "median"}
+            and self._numeric_fill_values is not None
+        ):
             numeric_cols = self._numeric_fill_values.index
-            df_out.loc[:, numeric_cols] = df_out.loc[:, numeric_cols].fillna(self._numeric_fill_values)
+            df_out.loc[:, numeric_cols] = df_out.loc[:, numeric_cols].fillna(
+                self._numeric_fill_values
+            )
             return df_out
 
         if self.strategy in {"mode", "constant"} and self._mode_fill_values is not None:
-            fill_map = {col: val for col, val in self._mode_fill_values.items() if col in df_out.columns}
+            fill_map = {
+                col: val
+                for col, val in self._mode_fill_values.items()
+                if col in df_out.columns
+            }
             if fill_map:
                 df_out = df_out.fillna(fill_map)
             return df_out
@@ -117,7 +134,9 @@ class CategoricalEncoder(PreprocessingStep):
         if self.columns is not None:
             target_columns = [col for col in self.columns if col in df.columns]
         else:
-            target_columns = df.select_dtypes(include=["object", "category"]).columns.tolist()
+            target_columns = df.select_dtypes(
+                include=["object", "category"]
+            ).columns.tolist()
 
         self.encoders = {}
         self._fitted_columns = target_columns
@@ -132,7 +151,9 @@ class CategoricalEncoder(PreprocessingStep):
 
     def transform(self, df: pd.DataFrame) -> pd.DataFrame:
         if not self._is_fitted:
-            raise RuntimeError("CategoricalEncoder must be fitted before calling transform.")
+            raise RuntimeError(
+                "CategoricalEncoder must be fitted before calling transform."
+            )
 
         if not self._fitted_columns:
             return df
@@ -162,7 +183,9 @@ class CategoricalEncoder(PreprocessingStep):
                     df_out.loc[~valid_mask, col] = np.nan
                     continue
                 else:
-                    raise ValueError(f"Unsupported handle_unknown option: {self.handle_unknown}")
+                    raise ValueError(
+                        f"Unsupported handle_unknown option: {self.handle_unknown}"
+                    )
 
             df_out.loc[:, col] = encoder.transform(series)
 
@@ -200,7 +223,9 @@ class FeatureScaler(PreprocessingStep):
             return df
 
         df_out = df.copy()
-        df_out.loc[:, self._numeric_columns] = self.scaler.transform(df_out[self._numeric_columns])
+        df_out.loc[:, self._numeric_columns] = self.scaler.transform(
+            df_out[self._numeric_columns]
+        )
         return df_out
 
 

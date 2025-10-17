@@ -59,9 +59,7 @@ class ModelTrainer:
         """Detect whether the task is classification or regression."""
         return self.backend.detect_problem_type(y)
 
-    def select_model(
-        self, problem_type: str, model_type: Optional[str] = None
-    ) -> Any:
+    def select_model(self, problem_type: str, model_type: Optional[str] = None) -> Any:
         """Select or build a model using the active backend."""
         if not hasattr(self.backend, "select_model"):
             raise AttributeError(

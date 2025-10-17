@@ -69,7 +69,10 @@ def test_steps_configuration_customizes_pipeline(
                 "save_model",
                 "save_preprocessor",
                 {"type": "save_metadata", "params": {"filename": "info.json"}},
-                {"type": "endpoint_script", "params": {"enabled": True, "filename": "serve.py"}},
+                {
+                    "type": "endpoint_script",
+                    "params": {"enabled": True, "filename": "serve.py"},
+                },
             ],
         }
     )
@@ -84,7 +87,9 @@ def test_steps_configuration_customizes_pipeline(
     assert Path(info["endpoint_path"]).exists()
 
 
-def test_custom_deployment_step_registration(tmp_path, trained_trainer, fitted_preprocessor):
+def test_custom_deployment_step_registration(
+    tmp_path, trained_trainer, fitted_preprocessor
+):
     class MarkerStep(DeploymentStep):
         name = "marker_step"
 

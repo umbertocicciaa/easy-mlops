@@ -211,7 +211,9 @@ class ModelMonitor:
         if isinstance(spec, dict):
             step_type = spec.get("type")
             if not step_type:
-                raise ValueError("Step configuration dictionaries must include a 'type' key.")
+                raise ValueError(
+                    "Step configuration dictionaries must include a 'type' key."
+                )
             params = spec.get("params") or {}
             return self._create_step(step_type, params)
 

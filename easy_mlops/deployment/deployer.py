@@ -48,7 +48,9 @@ class ModelDeployer:
         training_results: Dict[str, Any],
     ) -> Dict[str, Any]:
         """Create metadata for deployed model."""
-        deployment_time = self.config.get("deployment_time") or datetime.now().isoformat()
+        deployment_time = (
+            self.config.get("deployment_time") or datetime.now().isoformat()
+        )
 
         return {
             "model_path": model_path,
@@ -198,7 +200,9 @@ class ModelDeployer:
         if isinstance(spec, dict):
             step_type = spec.get("type")
             if not step_type:
-                raise ValueError("Step configuration dictionaries must include a 'type' key.")
+                raise ValueError(
+                    "Step configuration dictionaries must include a 'type' key."
+                )
             params = spec.get("params") or {}
             return self._create_step(step_type, params)
 

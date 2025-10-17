@@ -89,7 +89,9 @@ def test_custom_observability_step_registration():
         def on_log_metrics(self, metrics, model_version):
             self.metrics_calls += 1
 
-        def on_log_prediction(self, input_data, prediction, model_version, metadata=None):
+        def on_log_prediction(
+            self, input_data, prediction, model_version, metadata=None
+        ):
             self.prediction_calls += 1
 
     original_registry = ModelMonitor.STEP_REGISTRY.copy()

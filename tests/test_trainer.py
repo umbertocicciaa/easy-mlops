@@ -180,7 +180,9 @@ def test_deep_learning_backend_with_callables(classification_data, trainer_confi
         ("xgboost", False, "regression_data"),
     ],
 )
-def test_train_handles_all_supported_model_types(request, trainer_config, model_type, is_classifier, fixture_name):
+def test_train_handles_all_supported_model_types(
+    request, trainer_config, model_type, is_classifier, fixture_name
+):
     data = request.getfixturevalue(fixture_name)
     X, y = data
     config = dict(trainer_config)
@@ -228,7 +230,9 @@ def test_callable_backend_missing_callable_raises(classification_data):
         "backend": "deep_learning",
         "problem_type": "classification",
         "build_model": lambda _config, _ptype: LogisticRegression(max_iter=200),
-        "train_fn": lambda model, X_train, y_train, _config: model.fit(X_train, y_train),
+        "train_fn": lambda model, X_train, y_train, _config: model.fit(
+            X_train, y_train
+        ),
         # Intentionally omit predict_fn
     }
     trainer = ModelTrainer(config)

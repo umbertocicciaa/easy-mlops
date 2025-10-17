@@ -127,7 +127,11 @@ class DataPreprocessor:
         # Apply preprocessing steps
         df_processed = df.copy()
         for step in self.steps:
-            df_processed = step.fit_transform(df_processed) if fit else step.transform(df_processed)
+            df_processed = (
+                step.fit_transform(df_processed)
+                if fit
+                else step.transform(df_processed)
+            )
 
         # Refresh shortcuts to expose fitted state (scaler/encoders)
         self._refresh_step_shortcuts()
@@ -194,7 +198,9 @@ class DataPreprocessor:
         # Backwards-compatible defaults
         steps: List[PreprocessingStep] = []
         missing_strategy = self.config.get("handle_missing", "drop")
-        steps.append(self._create_step(MissingValueHandler.name, {"strategy": missing_strategy}))
+        steps.append(
+            self._create_step(MissingValueHandler.name, {"strategy": missing_strategy})
+        )
 
         if self.config.get("encode_categorical", True):
             steps.append(self._create_step(CategoricalEncoder.name, {}))
@@ -204,7 +210,9 @@ class DataPreprocessor:
 
         return steps
 
-    def _create_step(self, step_name: str, params: Optional[Dict[str, Any]] = None) -> PreprocessingStep:
+    def _create_step(
+        self, step_name: str, params: Optional[Dict[str, Any]] = None
+    ) -> PreprocessingStep:
         """Instantiate a step from the registry and provided parameters."""
         params = params or {}
         registry = self.STEP_REGISTRY
@@ -223,7 +231,9 @@ class DataPreprocessor:
         if isinstance(spec, dict):
             step_type = spec.get("type")
             if not step_type:
-                raise ValueError("Step configuration dictionaries must include a 'type' key.")
+                raise ValueError(
+                    "Step configuration dictionaries must include a 'type' key."
+                )
             params = spec.get("params") or {}
             return self._create_step(step_type, params)
 
@@ -232,7 +242,9 @@ class DataPreprocessor:
     def _refresh_step_shortcuts(self) -> None:
         """Expose commonly used state (scaler, encoders) for compatibility."""
         categorical_step = self.get_step(CategoricalEncoder.name)
-        self.encoders = getattr(categorical_step, "encoders", {}) if categorical_step else {}
+        self.encoders = (
+            getattr(categorical_step, "encoders", {}) if categorical_step else {}
+        )
 
         scaler_step = self.get_step(FeatureScaler.name)
         self.scaler = getattr(scaler_step, "scaler", None) if scaler_step else None

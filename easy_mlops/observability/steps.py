@@ -21,7 +21,9 @@ class ObservabilityStep(ABC):
         self.params = params
 
     @classmethod
-    def from_config(cls, params: Optional[Dict[str, object]] = None) -> "ObservabilityStep":
+    def from_config(
+        cls, params: Optional[Dict[str, object]] = None
+    ) -> "ObservabilityStep":
         params = params or {}
         return cls(**params)
 
@@ -151,9 +153,7 @@ class PredictionsLoggerStep(ObservabilityStep):
             return
 
         cleaned_prediction = (
-            prediction
-            if isinstance(prediction, (int, float, str))
-            else str(prediction)
+            prediction if isinstance(prediction, (int, float, str)) else str(prediction)
         )
 
         entry = {
