@@ -2,7 +2,7 @@ from pathlib import Path
 
 import numpy as np
 
-from easy_mlops.observability import ModelMonitor
+from easy_mlops.observability import ModelMonitor, ObservabilityStep
 
 
 def test_log_metrics_and_predictions():
@@ -57,3 +57,59 @@ def test_generate_report_contains_sections(tmp_path):
     assert "MODEL MONITORING REPORT" in report
     assert "METRICS SUMMARY" in report
     assert "PREDICTIONS SUMMARY" in report
+
+
+def test_steps_configuration_allows_custom_pipeline():
+    monitor = ModelMonitor(
+        {
+            "steps": [
+                "metrics_logger",
+                {"type": "metric_threshold", "params": {"default_threshold": 0.7}},
+            ]
+        }
+    )
+
+    monitor.log_metrics({"accuracy": 0.75})
+    monitor.log_prediction(input_data=None, prediction=1)
+
+    assert len(monitor.metrics_history) == 1
+    assert monitor.predictions_log == []
+    assert monitor.get_predictions_summary()["message"] == "Prediction logging disabled"
+
+
+def test_custom_observability_step_registration():
+    class CountingStep(ObservabilityStep):
+        name = "counting_step"
+
+        def __init__(self):
+            super().__init__()
+            self.metrics_calls = 0
+            self.prediction_calls = 0
+
+        def on_log_metrics(self, metrics, model_version):
+            self.metrics_calls += 1
+
+        def on_log_prediction(self, input_data, prediction, model_version, metadata=None):
+            self.prediction_calls += 1
+
+    original_registry = ModelMonitor.STEP_REGISTRY.copy()
+    try:
+        ModelMonitor.register_step(CountingStep)
+        monitor = ModelMonitor(
+            {
+                "steps": [
+                    "metrics_logger",
+                    "predictions_logger",
+                    "counting_step",
+                ]
+            }
+        )
+
+        monitor.log_metrics({"accuracy": 0.9})
+        monitor.log_prediction(input_data=None, prediction=1)
+
+        counting_step = monitor.get_step("counting_step")
+        assert counting_step.metrics_calls == 1
+        assert counting_step.prediction_calls == 1
+    finally:
+        ModelMonitor.STEP_REGISTRY = original_registry
