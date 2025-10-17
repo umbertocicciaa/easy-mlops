@@ -1,5 +1,5 @@
 deployment:
-  create_endpoint: false
+  create_endpoint: true
   output_dir: ./models
   save_format: joblib
 observability:

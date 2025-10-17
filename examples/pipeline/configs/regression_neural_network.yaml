@@ -1,0 +1,37 @@
+# Regression-focused configuration that swaps in the neural-network backend.
+# Pair with examples/data/house_prices.csv to observe continuous targets.
+
+preprocessing:
+  steps:
+    - type: missing_values
+      params:
+        strategy: mean
+    - type: feature_scaler
+
+training:
+  backend: neural_network
+  model_type: auto              # Uses MLPRegressor under the hood.
+  hidden_layer_sizes: [64, 32]
+  activation: relu
+  solver: adam
+  learning_rate_init: 0.001
+  max_iter: 400
+  random_state: 1337
+  test_size: 0.3
+  cv_folds: 3
+
+deployment:
+  output_dir: ./models
+  deployment_prefix: deployment_regression
+  save_format: joblib
+  create_endpoint: false
+
+observability:
+  track_metrics: true
+  log_predictions: true
+  metric_thresholds:
+    r2_score: 0.55
+    rmse: 90000
+  metric_directions:
+    r2_score: higher
+    rmse: lower

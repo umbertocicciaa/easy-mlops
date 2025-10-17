@@ -1,111 +1,66 @@
 # Make MLOps Easy Examples
 
-This directory contains example data and usage scenarios for Make MLOps Easy.
+This directory collects datasets, runnable scripts, and configuration presets
+that exercise every stage of the Make MLOps Easy pipeline. Use them as
+blueprints when adapting the framework to your own projects.
 
-## Sample Data
+## Datasets
 
-### `sample_data.csv`
+- `sample_data.csv` – binary loan approval dataset used by quickstart workflows
+  (`approved` is the target column).
+- `data/house_prices.csv` – small regression dataset for exploring alternative
+  trainers (`price` is the target column).
 
-A simple loan approval dataset with the following features:
-- `age`: Age of the applicant
-- `income`: Annual income
-- `credit_score`: Credit score
-- `loan_amount`: Requested loan amount
-- `approved`: Whether the loan was approved (target variable)
+All files are lightweight and safe to version control.
 
-## Usage Examples
+## CLI Workflows
 
-### 1. Basic Training
+- `complete_workflow.sh` – orchestrates the full CLI journey: train, status,
+  predict, observe. It now relies on the curated configuration under
+  `pipeline/configs/quickstart.yaml`.
+- `pipeline/scripts/*.sh` – granular helpers covering each command
+  (`init`, `train`, `predict`, `status`, `observe`) plus regression and neural
+  network variants. They automatically resolve repository-relative paths and
+  always target the latest deployment.
 
-Train a model with default settings:
+Make the scripts executable once (`chmod +x examples/pipeline/scripts/*.sh`) and
+run them from the repository root.
 
-```bash
-make-mlops-easy train examples/sample_data.csv --target approved
-```
+## Configuration Library
 
-### 2. Training with Custom Configuration
+The `pipeline/configs/` folder ships with ready-to-use YAML files:
 
-First, create a custom configuration:
+- `quickstart.yaml` – baseline classification setup with endpoint generation.
+- `regression_neural_network.yaml` – demonstrates the neural-network backend on
+  a regression problem.
+- `observability_strict.yaml` – rewires observability steps and metric
+  thresholds for stricter alerting.
+- `mlops-config.yaml` – generated via `scripts/00_init_project.sh` if you want a
+  clean copy of the default settings.
 
-```bash
-make-mlops-easy init -o examples/custom-config.yaml
-```
+Reference these presets directly via `make-mlops-easy train ... -c <path>` or
+use them as a starting point for your own configuration files.
 
-Edit the configuration file as needed, then train:
+## Programmatic Pipeline Usage
 
-```bash
-make-mlops-easy train examples/sample_data.csv --target approved -c examples/custom-config.yaml
-```
+`pipeline/scripts/06_run_programmatic_pipeline.py` shows how to call
+`easy_mlops.pipeline.MLOpsPipeline` from Python. This is handy for notebooks or
+automation where invoking the CLI isn’t convenient.
 
-### 3. Making Predictions
-
-After training, use the model to make predictions on new data:
-
-```bash
-# Assuming the model was deployed to models/deployment_TIMESTAMP
-make-mlops-easy predict examples/sample_data.csv models/deployment_*/
-```
-
-### 4. Monitoring
-
-Check the status of your deployed model:
-
-```bash
-make-mlops-easy status models/deployment_*/
-```
-
-Generate an observability report:
+Run it with:
 
 ```bash
-make-mlops-easy observe models/deployment_*/
-```
-
-### 5. Using the Prediction Endpoint
-
-After deployment with endpoint creation enabled, you can use the generated script:
-
-```bash
-python models/deployment_*/predict.py examples/sample_data.csv
-```
-
-## Complete Workflow Example
-
-```bash
-# Step 1: Initialize project
-make-mlops-easy init -o my-config.yaml
-
-# Step 2: Train model
-make-mlops-easy train examples/sample_data.csv --target approved -c my-config.yaml
-
-# Step 3: Check status
-make-mlops-easy status models/deployment_*/
-
-# Step 4: Make predictions
-make-mlops-easy predict examples/sample_data.csv models/deployment_*/ -o predictions.json
-
-# Step 5: Monitor performance
-make-mlops-easy observe models/deployment_*/
+python examples/pipeline/scripts/06_run_programmatic_pipeline.py
 ```
 
 ## Creating Your Own Dataset
 
-Make MLOps Easy supports CSV, JSON, and Parquet formats. Your data should:
+Make MLOps Easy supports CSV, JSON, and Parquet inputs. Ensure:
 
-1. Have a clear target column for training
-2. Include both numerical and/or categorical features
-3. Be in one of the supported formats
+1. Your dataset has a clearly named target column.
+2. Feature columns contain clean numerical/categorical values (missing values
+   are handled according to your configuration).
+3. The dataset lives in a supported format and is reachable by the CLI command.
 
-Example CSV structure:
-```csv
-feature1,feature2,feature3,target
-value1,value2,value3,label1
-value4,value5,value6,label2
-```
-
-Example JSON structure:
-```json
-[
-  {"feature1": "value1", "feature2": "value2", "target": "label1"},
-  {"feature1": "value3", "feature2": "value4", "target": "label2"}
-]
-```
+Need ideas? Copy one of the sample CSVs and adjust the columns to match your
+domain—everything else in the examples will continue to work.

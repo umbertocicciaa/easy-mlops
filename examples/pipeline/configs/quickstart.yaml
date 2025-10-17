@@ -1,0 +1,38 @@
+# Quickstart configuration for a binary classification workflow.
+# Demonstrates end-to-end automation with endpoint generation enabled.
+
+preprocessing:
+  # Compose explicit preprocessing steps (mirror of DataPreprocessor defaults).
+  steps:
+    - type: missing_values
+      params:
+        strategy: median
+    - type: categorical_encoder
+      params:
+        handle_unknown: use_first
+    - type: feature_scaler
+
+training:
+  backend: sklearn
+  model_type: auto        # Let the framework pick the best model.
+  test_size: 0.25
+  random_state: 42
+  cv_folds: 5
+
+deployment:
+  output_dir: ./models
+  deployment_prefix: deployment_quickstart
+  save_format: joblib
+  create_endpoint: true
+  endpoint_filename: predict.py
+
+observability:
+  track_metrics: true
+  log_predictions: true
+  alert_threshold: 0.85
+  metric_thresholds:
+    accuracy: 0.82
+    f1_score: 0.80
+  metric_directions:
+    accuracy: higher
+    f1_score: higher

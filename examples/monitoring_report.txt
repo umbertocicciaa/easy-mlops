@@ -5,8 +5,8 @@ MODEL MONITORING REPORT
 METRICS SUMMARY:
 ------------------------------------------------------------
   Total logs: 1
-  First log: 2025-10-13T21:40:39.615929
-  Last log: 2025-10-13T21:40:39.615929
+  First log: 2025-10-17T22:15:52.252001
+  Last log: 2025-10-17T22:15:52.252001
   Latest metrics:
     accuracy: 1.0000
     f1_score: 1.0000
@@ -16,7 +16,7 @@ METRICS SUMMARY:
 PREDICTIONS SUMMARY:
 ------------------------------------------------------------
   Total predictions: 20
-  First prediction: 2025-10-13T21:40:41.355786
-  Last prediction: 2025-10-13T21:40:41.355812
+  First prediction: 2025-10-17T22:15:53.967639
+  Last prediction: 2025-10-17T22:15:53.967694
 
 ============================================================
