@@ -42,6 +42,12 @@ make coverage
 
 Coverage artifacts are stored in `trace_summary/`. The GitHub Actions workflow uploads the same directory for CI review.
 
+## Distributed runtime tips
+
+- Start a development master/worker pair with `make-mlops-easy master start` and `make-mlops-easy worker start`. Use the `examples/distributed_runtime.sh` script when you prefer managed processes.
+- Workers stream stdout back to the master; add `print` statements in pipeline code to debug tasks quickly.
+- Override the state file path (`--state-path`) to keep reproducible fixtures for integration tests.
+
 ## Documentation
 
 Docs are built with MkDocs and the Material theme. To preview locally:
@@ -74,3 +80,5 @@ Before pushing:
 2. `make coverage` (optional but recommended)
 3. `make docs-build` to ensure documentation builds cleanly
 4. Review `git status` for unintended files (logs, artifacts should stay ignored).
+
+See [CI/CD](cicd.md) for the automated pipelines that validate pushes and releases.

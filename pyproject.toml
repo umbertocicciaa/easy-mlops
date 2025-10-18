@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "make-mlops-easy"
-version = "0.3.0"
+version = "0.4.0"
 description = "Make MLOps easier with an AI-powered framework"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -30,6 +30,9 @@ dependencies = [
     "pyyaml>=6.0",
     "rich>=10.0.0",
     "xgboost>=3.0.0",
+    "fastapi>=0.110.0",
+    "uvicorn>=0.23.0",
+    "requests>=2.31.0",
 ]
 
 [project.optional-dependencies]

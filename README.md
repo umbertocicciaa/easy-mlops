@@ -1,19 +1,43 @@
 # Make MLOps Easy
 
-Make MLOps easier with an AI-powered framework that abstracts all phases of an MLOps pipeline.
+Make MLOps Easy is an opinionated framework that automates the repetitive pieces of an end‑to‑end machine learning operations workflow. It wraps data preparation, model training, deployment, and observability behind a consistent API and a distributed CLI so teams can focus on delivering models instead of plumbing.
 
-## Overview
+## Why Make MLOps Easy
 
-Make MLOps Easy is a comprehensive framework that simplifies the entire machine learning operations pipeline. With a single command, you can:
+- **Pipeline in a box** – preprocess tabular data, train a model, ship artifacts, and generate observability reports with a single command or Python call.
+- **Distributed runtime** – offload long running jobs to workers coordinated by a FastAPI master service while driving everything from the `make-mlops-easy` CLI.
+- **Composable steps** – extend preprocessing, deployment, and observability through registries, or swap the training backend for neural networks, bespoke callables, or vendor integrations.
+- **Reproducible deployments** – every run produces a versioned deployment directory containing the model, preprocessor, metadata, and monitoring logs.
+- **Friendly developer experience** – MkDocs documentation, Makefile shortcuts, and an examples catalogue make local iteration straightforward.
 
-- **Data Preprocessing**: Automatic handling of missing values, feature scaling, and categorical encoding
-- **Model Training**: Intelligent model selection and hyperparameter tuning
-- **Model Deployment**: Automated model packaging and endpoint creation
-- **Model Observability**: Built-in monitoring, logging, and performance tracking
+## High-Level Architecture
 
-## Installation
+The project consists of two cooperating layers:
 
-### From Source
+1. **Core pipeline (`easy_mlops.pipeline.MLOpsPipeline`)** – orchestrates configuration, preprocessing, training, deployment, and observability. It can be embedded directly in Python code or invoked by the worker runtime.
+2. **Distributed runtime (`easy_mlops.distributed`)** – a FastAPI master keeps workflow state, hands tasks to workers, and streams results back to the CLI. Workers execute tasks via `TaskRunner`, which simply calls into the pipeline.
+
+```
+┌──────────────┐     submit workflow     ┌──────────────┐
+│   CLI user   │ ───────────────────────▶│   Master API │
+└─────┬────────┘                         └────┬─────────┘
+      │   poll status / logs                  │ assign task
+      │                                       ▼
+      │                               ┌──────────────┐
+      └──────────────────────────────▶│   Worker(s)  │
+                                      └────┬─────────┘
+                                           │ runs
+                                           ▼
+                                   ┌──────────────┐
+                                   │ MLOpsPipeline│
+                                   └──────────────┘
+```
+
+See the [docs](https://umbertocicciaa.github.io/easy-mlops/) for deeper dives into each subsystem.
+
+## Quick Start
+
+### 1. Install
 
 ```bash
 git clone https://github.com/umbertocicciaa/easy-mlops.git
@@ -21,345 +45,163 @@ cd easy-mlops
 pip install -e .
 ```
 
-### Using pip
+Or install the published package:
 
 ```bash
 pip install make-mlops-easy
 ```
 
-### Using Docker
+### 2. Launch the distributed runtime
 
-Build the image locally and expose the CLI:
+The CLI submits work to a master service. For local runs you can either start the components manually or use the helper script that ships with the examples.
+
+**Manual startup**
 
 ```bash
-docker build -t make-mlops-easy .
-docker run --rm make-mlops-easy --help
+# Terminal 1 – master (FastAPI + uvicorn)
+make-mlops-easy master start
+
+# Terminal 2 – worker agent
+make-mlops-easy worker start
 ```
 
-Mount data and persist model artifacts by binding host directories:
+**Helper script**
 
 ```bash
-docker run --rm \
-  -v "$(pwd)/data:/data" \
-  -v "$(pwd)/models:/app/models" \
-  make-mlops-easy train /data/dataset.csv --target price
+./examples/distributed_runtime.sh up   # starts master + worker in the background
 ```
 
-The container entrypoint is `make-mlops-easy`, so any CLI subcommand can be passed as usual.
+The master listens on `http://127.0.0.1:8000` by default; override with `--host/--port` or `EASY_MLOPS_MASTER_URL`.
 
-## Quick Start
+### 3. Run the pipeline
 
-### 1. Train a Model
-
-Train a machine learning model with a single command:
+Train, inspect, predict, and observe using the CLI:
 
 ```bash
-make-mlops-easy train data.csv --target price
-```
-
-This will:
-- Load and preprocess your data
-- Automatically detect the problem type (classification/regression)
-- Train an appropriate model
-- Deploy the model with all artifacts
-- Set up monitoring and logging
-
-### 2. Make Predictions
-
-Use your deployed model to make predictions:
-
-```bash
-make-mlops-easy predict new_data.csv models/deployment_20240101_120000
-```
-
-### 3. Check Model Status
-
-Get information about your deployed model:
-
-```bash
+make-mlops-easy train examples/sample_data.csv --target approved
 make-mlops-easy status models/deployment_20240101_120000
-```
-
-### 4. View Observability Reports
-
-Generate detailed monitoring reports:
-
-```bash
+make-mlops-easy predict examples/sample_data.csv models/deployment_20240101_120000 --output predictions.json
 make-mlops-easy observe models/deployment_20240101_120000
 ```
 
-### Examples & Templates
+All commands accept `--config` to point at a YAML configuration (see `examples/pipeline/configs/**` for templates). Use `./examples/distributed_runtime.sh down` to stop the local runtime.
 
-Ready-to-run scripts and curated configuration files live under
-`examples/pipeline/`. The accompanying README walks through staged CLI commands,
-regression/neural-network scenarios, and a programmatic pipeline example. Start
-with `examples/pipeline/scripts/01_train_quickstart.sh` to see the complete
-workflow in action.
+### 4. Programmatic usage
 
-## CLI Commands
+Embed the pipeline directly in Python when you do not need the distributed runtime:
 
-### `make-mlops-easy train`
+```python
+from easy_mlops.pipeline import MLOpsPipeline
 
-Train a machine learning model on your data.
+pipeline = MLOpsPipeline(config_path="configs/quickstart.yaml")
+results = pipeline.run("data/train.csv", target_column="price")
 
-**Usage:**
-```bash
-make-mlops-easy train DATA_PATH [OPTIONS]
+predictions = pipeline.predict("data/new_rows.csv", results["deployment"]["deployment_dir"])
+status = pipeline.get_status(results["deployment"]["deployment_dir"])
+report = pipeline.observe(results["deployment"]["deployment_dir"])
 ```
 
-**Options:**
-- `-t, --target TEXT`: Name of the target column
-- `-c, --config PATH`: Path to configuration file (YAML)
-- `--no-deploy`: Skip deployment step (only train the model)
+## CLI at a Glance
 
-**Examples:**
-```bash
-# Basic training
-make-mlops-easy train data.csv --target label
+| Command | Purpose | Key options |
+| ------- | ------- | ----------- |
+| `train` | Submit a training workflow; optionally skip deployment with `--no-deploy`. | `--target`, `--config`, `--master-url`, `--poll-interval` |
+| `predict` | Score a dataset with a previously deployed model. | `--output`, `--config`, `--master-url` |
+| `status` | Retrieve deployment metadata and observability summaries. | `--config`, `--master-url` |
+| `observe` | Produce a detailed monitoring report. | `--output`, `--config`, `--master-url` |
+| `master start` | Run the FastAPI orchestration service. | `--host`, `--port`, `--state-path` |
+| `worker start` | Launch a worker agent that executes queued tasks. | `--worker-id`, `--capability`, `--poll-interval`, `--master-url` |
+| `init` | Generate a default `mlops-config.yaml`. | `--output` |
 
-# With custom configuration
-make-mlops-easy train data.json -t price -c config.yaml
+The Makefile exposes the same workflows via `make train`, `make predict`, `make status`, and `make observe` for convenience once the virtual environment is set up (`make install-dev`).
 
-# Train without deploying
-make-mlops-easy train data.csv --target label --no-deploy
-```
+## Configuration System
 
-### `make-mlops-easy predict`
-
-Make predictions using a deployed model.
-
-**Usage:**
-```bash
-make-mlops-easy predict DATA_PATH MODEL_DIR [OPTIONS]
-```
-
-**Options:**
-- `-c, --config PATH`: Path to configuration file (YAML)
-- `-o, --output PATH`: Output file for predictions (JSON format)
-
-**Examples:**
-```bash
-# Basic prediction
-make-mlops-easy predict new_data.csv models/deployment_20240101_120000
-
-# Save predictions to file
-make-mlops-easy predict data.json models/latest -o predictions.json
-```
-
-### `make-mlops-easy status`
-
-Get status and metrics for a deployed model.
-
-**Usage:**
-```bash
-make-mlops-easy status MODEL_DIR [OPTIONS]
-```
-
-**Options:**
-- `-c, --config PATH`: Path to configuration file (YAML)
-
-**Example:**
-```bash
-make-mlops-easy status models/deployment_20240101_120000
-```
-
-### `make-mlops-easy observe`
-
-Generate observability report for a deployed model.
-
-**Usage:**
-```bash
-make-mlops-easy observe MODEL_DIR [OPTIONS]
-```
-
-**Options:**
-- `-c, --config PATH`: Path to configuration file (YAML)
-- `-o, --output PATH`: Output file for the report
-
-**Examples:**
-```bash
-# View report in terminal
-make-mlops-easy observe models/deployment_20240101_120000
-
-# Save report to file
-make-mlops-easy observe models/latest -o report.txt
-```
-
-### `make-mlops-easy init`
-
-Initialize a new MLOps project with default configuration.
-
-**Usage:**
-```bash
-make-mlops-easy init [OPTIONS]
-```
-
-**Options:**
-- `-o, --output PATH`: Output path for the configuration file (default: mlops-config.yaml)
-
-**Example:**
-```bash
-make-mlops-easy init -o my-config.yaml
-```
-
-## Configuration
-
-Make MLOps Easy uses YAML configuration files to customize behavior. Generate a default configuration:
-
-```bash
-make-mlops-easy init
-```
-
-### Configuration Structure
+All behaviour is driven by YAML configuration. Each top-level section corresponds to a subsystem:
 
 ```yaml
 preprocessing:
-  handle_missing: drop  # Options: drop, mean, median, mode
-  scale_features: true
-  encode_categorical: true
+  steps:
+    - type: missing_values
+      params: {strategy: median}
+    - categorical_encoder
+    - feature_scaler
 
 training:
+  backend: sklearn         # or neural_network, callable, …
+  model_type: auto
   test_size: 0.2
-  random_state: 42
   cv_folds: 5
-  model_type: auto  # Options: auto, random_forest_classifier, random_forest_regressor, logistic_regression, linear_regression
 
 deployment:
   output_dir: ./models
-  save_format: joblib
-  create_endpoint: false
+  create_endpoint: true
+  endpoint_filename: predict.py
 
 observability:
   track_metrics: true
   log_predictions: true
-  alert_threshold: 0.8
+  metric_thresholds: {accuracy: 0.85}
 ```
 
-## Features
+- **Preprocessing** – compose `PreprocessingStep` instances to clean data. Multiple formats (CSV, JSON, Parquet) are supported out of the box.
+- **Training** – select a backend (scikit-learn random forests, neural networks, or your own callables) and configure evaluation settings.
+- **Deployment** – control where artifacts land, which files are emitted, and whether auxiliary scripts are generated.
+- **Observability** – toggle metric/prediction logging and configure alert thresholds or custom monitoring steps.
 
-### Automatic Data Preprocessing
+Use `make-mlops-easy init` to scaffold a baseline file, then extend it or import presets from `examples/pipeline/configs/`.
 
-- **Missing Value Handling**: Multiple strategies (drop, mean, median, mode)
-- **Feature Scaling**: StandardScaler for numerical features
-- **Categorical Encoding**: Automatic label encoding for categorical variables
-- **Multiple Format Support**: CSV, JSON, and Parquet files
+## Extending the Framework
 
-### Intelligent Model Training
+- **Custom preprocessing** – subclass `PreprocessingStep`, register it with `DataPreprocessor.register_step`, and reference it by name in configuration.
+- **Alternative training backends** – subclass `BaseTrainingBackend`, implement `train`, and register it with `ModelTrainer.register_backend`.
+- **Deployment hooks** – create new `DeploymentStep` implementations (for example, uploading artifacts to cloud storage) and add them to the `deployment.steps` list.
+- **Monitoring integrations** – extend `ObservabilityStep` to forward metrics/predictions to external systems or implement bespoke alert logic.
 
-- **Problem Type Detection**: Automatically detects classification vs regression
-- **Model Selection**: Chooses appropriate algorithms based on your data
-- **Cross-Validation**: Built-in k-fold cross-validation
-- **Performance Metrics**: Comprehensive metrics for model evaluation
+Because all registries are global, custom components become available to both the pipeline and the CLI once imported.
 
-### Streamlined Deployment
-
-- **Model Artifacts**: Saves model, preprocessor, and metadata
-- **Versioning**: Timestamped deployments for easy tracking
-- **Endpoint Creation**: Optional prediction endpoint script generation
-- **Reproducibility**: All components saved for consistent predictions
-
-### Built-in Observability
-
-- **Metrics Tracking**: Automatic logging of model performance metrics
-- **Prediction Logging**: Track all predictions for analysis
-- **Performance Monitoring**: Detect metric degradation over time
-- **Reporting**: Generate detailed monitoring reports
-
-## Supported Data Formats
-
-- CSV (`.csv`)
-- JSON (`.json`)
-- Parquet (`.parquet`)
-
-## Supported Model Types
-
-### Classification
-- Random Forest Classifier
-- Logistic Regression
-
-### Regression
-- Random Forest Regressor
-- Linear Regression
-
-## Project Structure
+## Repository Layout
 
 ```
 easy-mlops/
 ├── easy_mlops/
-│   ├── __init__.py
-│   ├── cli.py                 # CLI interface
-│   ├── pipeline.py            # Main pipeline orchestrator
-│   ├── config/                # Configuration management
-│   ├── preprocessing/         # Data preprocessing
-│   ├── training/              # Model training
-│   ├── deployment/            # Model deployment
-│   └── observability/         # Model monitoring
-├── pyproject.toml
-├── requirements.txt
-└── README.md
+│   ├── cli.py                    # Click-based CLI targeting the distributed runtime
+│   ├── pipeline.py               # High-level orchestration
+│   ├── config/                   # YAML loader and defaults
+│   ├── preprocessing/            # Step framework + built-in transformers
+│   ├── training/                 # Trainer abstraction and backends
+│   ├── deployment/               # Deployment steps and artifact writers
+│   ├── observability/            # Monitoring steps and log management
+│   └── distributed/              # FastAPI master, worker agent, task runner, state store
+├── docs/                         # MkDocs sources (https://umbertocicciaa.github.io/easy-mlops/)
+├── examples/                     # Datasets, scripts, and curated configuration files
+├── tests/                        # Pytest suite covering core subsystems
+├── mkdocs.yml                    # Documentation site configuration
+└── Makefile                      # Common development shortcuts
 ```
-
-## Requirements
-
-- Python >= 3.10
-- click >= 8.0.0
-- pandas >= 1.3.0
-- scikit-learn >= 1.0.0
-- joblib >= 1.0.0
-- pyyaml >= 6.0
-- rich >= 10.0.0
 
 ## Development
 
-### Running Tests
-
 ```bash
-pytest
+make install-dev   # create .venv/ and install package with dev extras
+make format lint   # black + flake8
+make test          # run pytest suite
+make coverage      # generate trace-based coverage summary
+make docs-serve    # live MkDocs preview at http://127.0.0.1:8000/
 ```
 
-### Code Formatting
+Continuous integration (GitHub Actions) runs tests on Linux, macOS, and Windows, ensures formatting, builds documentation, and publishes packages/images on tagged releases. See `docs/cicd.md` for details.
 
-```bash
-black easy_mlops/
-```
+## Additional Resources
 
-### Documentation
-
-Project documentation is powered by MkDocs and the Material theme. Source files live in `docs/`, and the site configuration is `mkdocs.yml`.
-
-```bash
-# Serve docs locally (http://localhost:8000)
-make docs-serve
-
-# Build static site into site/
-make docs-build
-```
-
-The GitHub Actions workflow `.github/workflows/docs.yml` automatically builds and deploys the site to GitHub Pages on pushes to `main`. Enable GitHub Pages in the repository settings (source: “GitHub Actions”). For manual publishing or previews outside CI, run:
-
-```bash
-make docs-deploy
-```
-
-### Type Checking
-
-```bash
-mypy easy_mlops/
-```
+- Documentation: https://umbertocicciaa.github.io/easy-mlops/
+- Examples walkthroughs: `examples/README.md`
+- Issues & roadmap: https://github.com/umbertocicciaa/easy-mlops/issues
 
 ## License
 
-MIT License
-
-## Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
+Make MLOps Easy is released under the MIT License. See [LICENSE](LICENSE).
 
 ## Author
 
-Umberto Domenico Ciccia
-
-## Links
-
-- GitHub: https://github.com/umbertocicciaa/easy-mlops
-- Issues: https://github.com/umbertocicciaa/easy-mlops/issues
+Created by Umberto Domenico Ciccia.
