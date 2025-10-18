@@ -1,16 +1,14 @@
 # CLI Reference
 
-Make MLOps Easy exposes a Click-based command-line interface under the executable `make-mlops-easy`. All commands share the same configuration system and logging facilities.
-
-## Global Usage
+The `make-mlops-easy` command line interface wraps the distributed runtime and exposes high-level pipeline workflows. Commands are implemented with Click and share a consistent set of options such as `--config`, `--master-url`, and `--poll-interval`.
 
 ```bash
 make-mlops-easy [COMMAND] [OPTIONS]
 ```
 
-Run `make-mlops-easy --help` to see top-level commands and `make-mlops-easy <command> --help` for per-command options.
+Run `make-mlops-easy --help` to inspect the top-level commands or append `--help` to any command for detailed usage.
 
-## Commands
+## Workflow commands
 
 ### `train`
 
@@ -20,12 +18,14 @@ make-mlops-easy train DATA_PATH [--target COLUMN] [--config PATH] [--no-deploy]
 
 | Option | Description |
 | :----- | :---------- |
-| `DATA_PATH` | Input dataset (CSV, JSON, or Parquet). |
-| `--target`, `-t` | Target column name. If omitted, the last column is used. |
-| `--config`, `-c` | Path to a YAML configuration file to override defaults. |
-| `--no-deploy` | Skip the deployment stage and only train the model. |
+| `DATA_PATH` | Dataset to train on (CSV, JSON, or Parquet). |
+| `--target`, `-t` | Target column name. Defaults to the last column when omitted. |
+| `--config`, `-c` | Apply a YAML configuration file. |
+| `--no-deploy` | Skip the deployment stage (training still runs). |
+| `--master-url` | URL of the master service (`http://127.0.0.1:8000` by default). |
+| `--poll-interval` | Seconds between workflow status checks. |
 
-The command prints pipeline progress and yields the deployment directory (unless skipped).
+The command prints progress, metrics, and the deployment directory (unless deployment is disabled).
 
 ### `predict`
 
@@ -37,10 +37,10 @@ make-mlops-easy predict DATA_PATH MODEL_DIR [--config PATH] [--output PATH]
 | :----- | :---------- |
 | `DATA_PATH` | Dataset to score. |
 | `MODEL_DIR` | Deployment directory produced by `train`. |
-| `--config`, `-c` | Optional configuration overrides. |
-| `--output`, `-o` | Save predictions to a JSON file. |
+| `--output`, `-o` | Optional path to save predictions (`{"predictions": [...]}`). |
+| `--config`, `--master-url`, `--poll-interval` | Same as `train`. |
 
-Predictions are displayed in the terminal. When `--output` is provided, predictions are serialized under `{"predictions": [...]}`.
+Predictions are also printed to the console.
 
 ### `status`
 
@@ -48,49 +48,74 @@ Predictions are displayed in the terminal. When `--output` is provided, predicti
 make-mlops-easy status MODEL_DIR [--config PATH]
 ```
 
-Displays deployment metadata, evaluation metrics, and monitoring summaries by loading artifacts from `MODEL_DIR`.
+Displays deployment metadata, evaluation metrics, and monitoring summaries loaded from `MODEL_DIR`.
 
 ### `observe`
 
 ```bash
-make-mlops-easy observe MODEL_DIR [--config PATH]
+make-mlops-easy observe MODEL_DIR [--config PATH] [--output PATH]
 ```
 
-Generates a textual monitoring report summarizing metric trends and prediction logs.
+Produces a formatted observability report and optionally saves it to disk.
 
-## Configuration Overrides
+## Runtime management
 
-Provide a YAML configuration to customize preprocessing, training, deployment, and observability. A few highlights:
+### `master start`
 
-```yaml
-preprocessing:
-  handle_missing: mean
-  scale_features: true
-  encode_categorical: true
-
-training:
-  test_size: 0.2
-  random_state: 42
-  cv_folds: 3
-  model_type: random_forest_classifier
-
-deployment:
-  output_dir: ./models
-  create_endpoint: true
-
-observability:
-  alert_threshold: 0.75
+```bash
+make-mlops-easy master start [--host HOST] [--port PORT] [--state-path PATH]
 ```
 
-Pass the file with `--config path/to/config.yaml`. Absent keys fall back to defaults.
+Runs the FastAPI master service that accepts workflow requests from the CLI and coordinates workers.
 
-## Makefile Shortcuts
+- `--host` / `--port` – bind address and port (defaults: `127.0.0.1:8000`).
+- `--state-path` – optional JSON file used to persist workflow state (`~/.easy_mlops/master_state.json` by default).
 
-The repository includes friendly wrappers around the CLI:
+The process blocks until interrupted (Ctrl+C).
 
-- `make train DATA=... TARGET=...`
-- `make predict DATA=... MODEL_DIR=...`
-- `make status MODEL_DIR=...`
-- `make observe MODEL_DIR=...`
+### `worker start`
 
-These targets rely on the virtual environment created by `make install-dev`.
+```bash
+make-mlops-easy worker start [--master-url URL] [--worker-id ID] [--poll-interval SECONDS] [--capability TAG ...]
+```
+
+Launches a worker agent that polls the master for tasks and executes them via `TaskRunner`.
+
+- `--master-url` – master endpoint (defaults to `http://127.0.0.1:8000` or `EASY_MLOPS_MASTER_URL`).
+- `--worker-id` – custom identifier; autogenerated when omitted.
+- `--poll-interval` – seconds between polling requests (minimum 0.5s).
+- `--capability` – repeatable flag that tags the worker (future task routing hook).
+
+Workers stream task output (stdout) back to the master so the CLI can render it after completion.
+
+## Project scaffolding
+
+### `init`
+
+```bash
+make-mlops-easy init [--output PATH]
+```
+
+Creates a default `mlops-config.yaml` you can customise and pass to other commands via `--config`. The file mirrors the defaults baked into `easy_mlops/config/config.py`.
+
+## Environment variables and defaults
+
+| Variable | Purpose | Default |
+| :------- | :------ | :------ |
+| `EASY_MLOPS_MASTER_URL` | Overrides the master URL used by CLI commands. | `http://127.0.0.1:8000` |
+| `EASY_MLOPS_POLL_INTERVAL` | Controls the default polling interval in seconds. | `2.0` |
+
+CLI options take precedence over environment variables.
+
+## Using the Makefile
+
+Once you have installed the project with `make install-dev`, you can invoke the CLI through shortcuts that automatically resolve the virtual environment:
+
+```bash
+make train DATA=examples/sample_data.csv TARGET=approved
+make predict DATA=examples/sample_data.csv MODEL_DIR=models/deployment_20240101_120000
+make status MODEL_DIR=models/deployment_20240101_120000
+make observe MODEL_DIR=models/deployment_20240101_120000
+```
+
+Custom arguments can be appended through the `ARGS` variable, for example `make train DATA=... ARGS="--config configs/quickstart.yaml"`.
