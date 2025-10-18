@@ -49,7 +49,25 @@ The container entrypoint is `make-mlops-easy`, so any CLI subcommand can be pass
 
 ## Quick Start
 
-### 1. Train a Model
+### 1. Start the Master Service
+
+```bash
+make-mlops-easy master start
+```
+
+The master listens on `http://127.0.0.1:8000` by default. Use `--host`,
+`--port`, or `--state-path` to customise the deployment.
+
+### 2. Start a Worker Agent
+
+```bash
+make-mlops-easy worker start
+```
+
+Workers connect to the master via `--master-url`. Launch multiple workers with
+different `--worker-id` values to scale out horizontally.
+
+### 3. Train a Model
 
 Train a machine learning model with a single command:
 
@@ -64,7 +82,7 @@ This will:
 - Deploy the model with all artifacts
 - Set up monitoring and logging
 
-### 2. Make Predictions
+### 4. Make Predictions
 
 Use your deployed model to make predictions:
 
@@ -72,7 +90,7 @@ Use your deployed model to make predictions:
 make-mlops-easy predict new_data.csv models/deployment_20240101_120000
 ```
 
-### 3. Check Model Status
+### 5. Check Model Status
 
 Get information about your deployed model:
 
@@ -80,7 +98,7 @@ Get information about your deployed model:
 make-mlops-easy status models/deployment_20240101_120000
 ```
 
-### 4. View Observability Reports
+### 6. View Observability Reports
 
 Generate detailed monitoring reports:
 
@@ -111,6 +129,8 @@ make-mlops-easy train DATA_PATH [OPTIONS]
 - `-t, --target TEXT`: Name of the target column
 - `-c, --config PATH`: Path to configuration file (YAML)
 - `--no-deploy`: Skip deployment step (only train the model)
+- `--master-url TEXT`: URL of the master service (default: http://127.0.0.1:8000)
+- `--poll-interval FLOAT`: Seconds between status checks (default: 2.0)
 
 **Examples:**
 ```bash
@@ -136,6 +156,8 @@ make-mlops-easy predict DATA_PATH MODEL_DIR [OPTIONS]
 **Options:**
 - `-c, --config PATH`: Path to configuration file (YAML)
 - `-o, --output PATH`: Output file for predictions (JSON format)
+- `--master-url TEXT`: URL of the master service (default: http://127.0.0.1:8000)
+- `--poll-interval FLOAT`: Seconds between status checks (default: 2.0)
 
 **Examples:**
 ```bash
@@ -175,6 +197,8 @@ make-mlops-easy observe MODEL_DIR [OPTIONS]
 **Options:**
 - `-c, --config PATH`: Path to configuration file (YAML)
 - `-o, --output PATH`: Output file for the report
+- `--master-url TEXT`: URL of the master service (default: http://127.0.0.1:8000)
+- `--poll-interval FLOAT`: Seconds between status checks (default: 2.0)
 
 **Examples:**
 ```bash
@@ -184,6 +208,35 @@ make-mlops-easy observe models/deployment_20240101_120000
 # Save report to file
 make-mlops-easy observe models/latest -o report.txt
 ```
+
+### `make-mlops-easy master start`
+
+Run the master orchestration service.
+
+**Usage:**
+```bash
+make-mlops-easy master start [OPTIONS]
+```
+
+**Options:**
+- `--host TEXT`: Bind address for the HTTP server (default: 127.0.0.1)
+- `--port INTEGER`: Listening port (default: 8000)
+- `--state-path PATH`: Optional path to persist workflow state (default: ~/.easy_mlops/master_state.json)
+
+### `make-mlops-easy worker start`
+
+Start a worker agent that executes workflows assigned by the master.
+
+**Usage:**
+```bash
+make-mlops-easy worker start [OPTIONS]
+```
+
+**Options:**
+- `--master-url TEXT`: URL of the master service (default: http://127.0.0.1:8000)
+- `--worker-id TEXT`: Optional custom identifier for the worker
+- `--poll-interval FLOAT`: Seconds between polling attempts (default: 2.0)
+- `--capability TEXT`: Capability tag for this worker (repeat the flag to add more)
 
 ### `make-mlops-easy init`
 

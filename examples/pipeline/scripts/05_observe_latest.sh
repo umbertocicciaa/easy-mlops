@@ -8,6 +8,10 @@ REPO_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
 CONFIG_PATH="${REPO_ROOT}/examples/pipeline/configs/observability_strict.yaml"
 OUTPUT_PATH="${REPO_ROOT}/examples/pipeline/monitoring_report.txt"
 
+source "${REPO_ROOT}/examples/distributed_runtime.sh"
+ensure_master
+ensure_worker
+
 LATEST_DEPLOYMENT="$(ls -dt "${REPO_ROOT}"/models/deployment_* 2>/dev/null | head -1 || true)"
 if [[ -z "${LATEST_DEPLOYMENT}" ]]; then
   echo "[observe] No deployment directories found under ${REPO_ROOT}/models/"
@@ -17,9 +21,14 @@ fi
 
 echo "[observe] Inspecting deployment: ${LATEST_DEPLOYMENT}"
 echo "[observe] Writing report to: ${OUTPUT_PATH}"
+echo "[observe] Master URL: ${MASTER_URL}"
 echo
 
-make-mlops-easy observe "${LATEST_DEPLOYMENT}" -c "${CONFIG_PATH}" -o "${OUTPUT_PATH}"
+make-mlops-easy observe \
+  "${LATEST_DEPLOYMENT}" \
+  -c "${CONFIG_PATH}" \
+  -o "${OUTPUT_PATH}" \
+  --master-url "${MASTER_URL}"
 
 echo
 echo "[observe] Report preview:"

@@ -17,6 +17,16 @@ All scripts assume you run them from the repository root with `make-mlops-easy`
 installed in the current environment. They default to the datasets under
 `examples/`.
 
+### Distributed Runtime Autostart
+
+Each shell script sources `examples/distributed_runtime.sh`. If a master or
+worker is not already available, the helper starts ephemeral instances
+automatically (listening at `http://127.0.0.1:8000`) and stores logs under
+`examples/.runtime/`. To opt out, export
+`EXAMPLES_USE_EMBEDDED_MASTER=0` and/or `EXAMPLES_USE_EMBEDDED_WORKER=0`
+before running the scripts, then supply your own services and pass
+`MASTER_URL` accordingly.
+
 ## Scenario Overview
 
 | Script | What it demonstrates | Uses configuration |

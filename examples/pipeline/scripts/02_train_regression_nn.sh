@@ -8,11 +8,21 @@ REPO_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
 DATA_PATH="${REPO_ROOT}/examples/data/house_prices.csv"
 CONFIG_PATH="${REPO_ROOT}/examples/pipeline/configs/regression_neural_network.yaml"
 
+# Manage the distributed runtime automatically.
+source "${REPO_ROOT}/examples/distributed_runtime.sh"
+ensure_master
+ensure_worker
+
 echo "[train-regression] Using data: ${DATA_PATH}"
 echo "[train-regression] Using config: ${CONFIG_PATH}"
+echo "[train-regression] Master URL: ${MASTER_URL}"
 echo
 
-make-mlops-easy train "${DATA_PATH}" --target price -c "${CONFIG_PATH}"
+make-mlops-easy train \
+  "${DATA_PATH}" \
+  --target price \
+  -c "${CONFIG_PATH}" \
+  --master-url "${MASTER_URL}"
 
 echo
 echo "[train-regression] Latest deployments:"

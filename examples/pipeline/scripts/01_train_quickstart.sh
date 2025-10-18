@@ -8,11 +8,21 @@ REPO_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
 DATA_PATH="${REPO_ROOT}/examples/sample_data.csv"
 CONFIG_PATH="${REPO_ROOT}/examples/pipeline/configs/quickstart.yaml"
 
+# Automatically manage the master/worker runtime.
+source "${REPO_ROOT}/examples/distributed_runtime.sh"
+ensure_master
+ensure_worker
+
 echo "[train] Using data: ${DATA_PATH}"
 echo "[train] Using config: ${CONFIG_PATH}"
+echo "[train] Master URL: ${MASTER_URL}"
 echo
 
-make-mlops-easy train "${DATA_PATH}" --target approved -c "${CONFIG_PATH}"
+make-mlops-easy train \
+  "${DATA_PATH}" \
+  --target approved \
+  -c "${CONFIG_PATH}" \
+  --master-url "${MASTER_URL}"
 
 echo
 echo "[train] Latest deployments:"
