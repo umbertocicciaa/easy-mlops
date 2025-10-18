@@ -89,4 +89,9 @@ docker-shell: ## Start interactive shell inside Docker image
 	docker run --rm -it $(DOCKER_FLAGS) $(IMAGE) /bin/bash
 
 clean: ## Remove build artifacts and caches
+	# remove build artifacts
 	rm -rf build dist *.egg-info .pytest_cache coverage_data trace_summary site
+	# remove python compiled files and caches
+	# skip the virtualenv directory when removing caches
+	find . -path './.venv' -prune -o -type d -name "__pycache__" -exec rm -rf {} + || true
+	find . -path './.venv' -prune -o -type f -name "*.py[co]" -exec rm -f {} + || true
