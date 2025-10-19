@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import traceback
-from typing import Any, Dict, Optional
+from typing import Any, Dict
 
 
 def safe_call(func, *args, **kwargs) -> Any:
