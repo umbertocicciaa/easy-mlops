@@ -1,6 +1,5 @@
 from pathlib import Path
 
-import numpy as np
 
 from easy_mlops.observability import ModelMonitor, ObservabilityStep
 
